@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "compilerOptions": {
+    "composite": true,
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "isolatedModules": true,
+    "moduleDetection": "force",
+    "allowSyntheticDefaultImports": true,
+    "lib": ["ES2023"],
+    "target": "ES2022",
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedSideEffectImports": true,
+    "types": ["vitest/globals"]
+  },
+  "include": [
+    "vite.config.ts",
+    "vite.config.common.ts",
+    "playwright.config.ts",
+    "scripts/**/*.ts",
+    "eslint.config.mjs",
+    "eslintrules/**/*"
+  ]
+}

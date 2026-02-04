@@ -1,0 +1,29 @@
+{
+  "unity": {
+    "packages": {
+      "default": {
+        "applicationName": "Brilliant Sort: Diamond Puzzle",
+        "iosLink": "https://play.google.com/store/apps/details?id=com.belkagames.ds&hl=en",
+        "androidLink": "https://apps.apple.com/us/app/brilliant-sort-diamond-puzzle/id6749456493",
+        "orientation": "unspecified",
+        "supportedLanguages": ["en"]
+      },
+      "ironsource": {
+        "appID": "",
+        "assetID": "",
+        "applicationGenre": "",
+        "versionName": "",
+        "apiType": 0,
+        "playableMode": 0,
+        "packageType": 0
+      },
+      "facebook": {
+        "assetID": "",
+        "packageType": 0
+      },
+      "tiktok": {
+        "orientation": 0
+      }
+    }
+  }
+}

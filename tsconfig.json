@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleDetection": "force",
+    //"jsx": "react",
+    "composite": true,
+    "noEmit": true,
+    "isolatedModules": true,
+    "strict": true,
+    "allowJs": true,
+    "checkJs": true,
+    "moduleResolution": "bundler",
+    "baseUrl": "./src/",
+    "types": ["node"],
+    "typeRoots": ["node_modules/@types"],
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "useDefineForClassFields": true,
+    "paths": {
+      "utils/*": ["utils/*"],
+      "assets/*": ["assets/*"]
+    }
+  },
+  "importOrderSeparation": true,
+  "include": ["src/**/*", "src/**/*.json", "src/**/*.atlas"],
+  "exclude": ["node_modules", "nodeScripts"],
+  "references": [
+    {
+      "path": "./tsconfig.node.json"
+    }
+  ]
+}
