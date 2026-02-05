@@ -28,7 +28,7 @@ const CELL_SIZE = 133;
 const CELL_COUNT_X = 64;
 const CELL_COUNT_Y = 56;
 
-const INIT_DELAY = 0.6;
+const INIT_DELAY = 0.1;
 const ZOOM_DURATION = 1000;
 const ZOOM_SCALE = 2.2;
 
@@ -50,7 +50,9 @@ export class BoardView extends Container {
   private backgroundLayer = new Container();
   private gemsLayer = new Container();
   private stack1 = new Container();
+  private stack1Overlay = new Container();
   private stack2 = new Container();
+  private stack2Overlay = new Container();
   private misfilledLayer1 = new Container();
   private misfilledLayer1Background = new Container();
   private misfilledLayer1Gems = new Container();
@@ -89,6 +91,8 @@ export class BoardView extends Container {
 
   private correctCounter = 0;
   private misfills = 7;
+  private firstFromFirst = true;
+  private firstFromSecond = true;
 
   private gemsGroup21: (Sprite | null)[] = [];
   private gemsGroup22: (Sprite | null)[] = [];
@@ -125,7 +129,9 @@ export class BoardView extends Container {
     this.boardRoot.addChild(this.backgroundLayer);
     this.boardRoot.addChild(this.gemsLayer);
     this.boardRoot.addChild(this.stack1);
+    this.boardRoot.addChild(this.stack1Overlay);
     this.boardRoot.addChild(this.stack2);
+    this.boardRoot.addChild(this.stack2Overlay);
     this.misfilledLayer1.addChild(this.misfilledLayer1Background);
     this.misfilledLayer1.addChild(this.misfilledLayer1Gems);
     this.misfilledLayer2.addChild(this.misfilledLayer2Background);
@@ -174,7 +180,16 @@ export class BoardView extends Container {
     const startY = 3500;
 
     this.stack1.position.set(startX, startY);
+    this.stack1Overlay.position.set(startX, startY);
     this.stack1Slots = [];
+    const background = makeSprite({
+      atlas: 'game',
+      frame: 'stack_bkg.png',
+      x: -CELL_SIZE / 2 - 50,
+      y: -CELL_SIZE / 2 - 50,
+      anchor: { x: 0, y: 0 },
+    });
+    this.stack1.addChild(background);
 
     for (let row = 0; row < rows; row += 1) {
       for (let col = 0; col < cols; col += 1) {
@@ -187,13 +202,25 @@ export class BoardView extends Container {
           y: slotY,
         });
         empty.eventMode = 'static';
-        empty.on('pointerdown', () => this.onStackClick());
+        empty.on('pointerdown', () => this.onStack1Click());
         this.stack1.addChild(empty);
+
+        const emptyOverlay = makeSprite({
+          frame: 'empty_yellow_light.png',
+          atlas: 'gems',
+          x: slotX,
+          y: slotY,
+        });
+        this.stack1Overlay.addChild(emptyOverlay);
+
         this.stack1Slots.push({ x: slotX, y: slotY });
       }
     }
 
+    console.warn(this.stack1.width, this.stack1.height);
+
     this.stack1.alpha = 0;
+    this.stack1Overlay.alpha = 0;
   }
 
   private buildStack2(): void {
@@ -204,7 +231,17 @@ export class BoardView extends Container {
     const startY = 5750;
 
     this.stack2.position.set(startX, startY);
+    this.stack2Overlay.position.set(startX, startY);
     this.stack2Slots = [];
+
+    const background = makeSprite({
+      atlas: 'game',
+      frame: 'stack_bkg.png',
+      x: -CELL_SIZE / 2 - 50,
+      y: -CELL_SIZE / 2 - 50,
+      anchor: { x: 0, y: 0 },
+    });
+    this.stack2.addChild(background);
 
     for (let row = 0; row < rows; row += 1) {
       for (let col = 0; col < cols; col += 1) {
@@ -219,20 +256,34 @@ export class BoardView extends Container {
         empty.eventMode = 'static';
         empty.on('pointerdown', () => this.onStack2Click());
         this.stack2.addChild(empty);
+
+        const emptyOverlay = makeSprite({
+          frame: 'empty_yellow_light.png',
+          atlas: 'gems',
+          x: slotX,
+          y: slotY,
+        });
+        this.stack2Overlay.addChild(emptyOverlay);
+
         this.stack2Slots.push({ x: slotX, y: slotY });
       }
     }
 
     this.stack2.alpha = 0;
+    this.stack2Overlay.alpha = 0;
   }
 
-  private onStackClick(): void {
+  private onStack1Click(): void {
     if (!this.activeColor || this.animationInProgress || this.stack1Filled) return;
+    anime.remove(this.stack1Overlay);
+    this.stack1Overlay.alpha = 0;
     this.moveGemsToStack1();
   }
 
   private onStack2Click(): void {
     if (!this.activeColor || this.animationInProgress || this.stack2Filled) return;
+    anime.remove(this.stack2Overlay);
+    this.stack2Overlay.alpha = 0;
     this.moveGemsToStack2();
   }
 
@@ -679,6 +730,18 @@ export class BoardView extends Container {
     if (this.chosenGems.find((gem) => gem === gemo)) {
       return;
     }
+
+    if (this.firstFromFirst) {
+      this.firstFromFirst = false;
+      anime({
+        targets: this.stack1Overlay,
+        alpha: 0.7,
+        duration: 400,
+        loop: 6,
+        direction: 'alternate',
+        easing: 'easeInOutSine',
+      });
+    }
     if (this.activeColor) {
       this.putGemBack(this.chosenGems);
 
@@ -752,6 +815,18 @@ export class BoardView extends Container {
 
     if (this.chosenGems.find((gem) => gem === gemo)) {
       return;
+    }
+
+    if (this.firstFromFirst) {
+      this.firstFromFirst = false;
+      anime({
+        targets: this.stack1Overlay,
+        alpha: 0.7,
+        duration: 400,
+        loop: 6,
+        direction: 'alternate',
+        easing: 'easeInOutSine',
+      });
     }
 
     if (this.activeColor) {
