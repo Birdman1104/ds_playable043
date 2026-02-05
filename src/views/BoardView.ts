@@ -605,7 +605,7 @@ export class BoardView extends Container {
       const key = this.getKey(position.x, position.y);
       return this.misfilledMap2.get(key)?.gem;
     }).filter((g) => g !== undefined);
-    const cellsGroup21 = MISFILLED1.map((position) => {
+    const cellsGroup21 = MISFILLED8.map((position) => {
       const key = this.getKey(position.x, position.y);
       return this.misfilledMap2.get(key)?.background;
     }).filter((c) => c !== undefined);
@@ -680,11 +680,20 @@ export class BoardView extends Container {
   }
 
   private onMisfilled1GemClick(x: number, y: number, color: string): void {
-    if (this.activeColor || this.animationInProgress) return;
-
-    this.activeColor = color;
+    if (this.animationInProgress) return;
     const key = this.getKey(x, y);
     const gemo = this.misfilledMap1.get(key)?.gem || this.stack1Map.get(key)?.gem || null;
+
+    if (this.chosenGems.find((gem) => gem === gemo)) {
+      return;
+    }
+    if (this.activeColor) {
+      this.putGemBack(this.chosenGems);
+
+      this.chosenGems = [];
+    }
+
+    this.activeColor = color;
 
     const gemsGroup = [
       this.gemsGroup11,
@@ -697,33 +706,68 @@ export class BoardView extends Container {
     ].find((group) => group.find((gem) => gem === gemo));
     if (gemsGroup) {
       this.chosenGems = gemsGroup.filter((g) => g !== null) as Sprite[];
-
-      this.chosenGems.forEach((gem, i) => {
-        anime({
-          targets: gem,
-          y: '-=20',
-          duration: 100,
-          delay: i * 4,
-          easing: 'easeInOutSine',
-        });
-        anime({
-          targets: gem.scale,
-          x: 1.1,
-          y: 1.1,
-          duration: 100,
-          delay: i * 4,
-          easing: 'easeInOutSine',
-        });
-      });
+      this.highlightGems(this.chosenGems, this.misfilledLayer1Gems);
     }
   }
 
-  private onMisfilled2GemClick(x: number, y: number, color: string): void {
-    if (this.activeColor || this.animationInProgress) return;
+  private putGemBack(gems: Sprite[] | null): void {
+    if (!gems) return;
+    gems.forEach((gem, i) => {
+      anime({
+        targets: gem,
+        y: '+=20',
+        duration: 100,
+        delay: i * 4,
+        easing: 'easeInOutSine',
+      });
+      anime({
+        targets: gem.scale,
+        x: 1,
+        y: 1,
+        duration: 100,
+        delay: i * 4,
+        easing: 'easeInOutSine',
+      });
+    });
+  }
 
-    this.activeColor = color;
+  private highlightGems(gems: Sprite[] | null, layer: Container): void {
+    if (!gems) return;
+    gems.forEach((gem, i) => {
+      layer.addChild(gem);
+      anime({
+        targets: gem,
+        y: '-=20',
+        duration: 100,
+        delay: i * 4,
+        easing: 'easeInOutSine',
+      });
+      anime({
+        targets: gem.scale,
+        x: 1.1,
+        y: 1.1,
+        duration: 100,
+        delay: i * 4,
+        easing: 'easeInOutSine',
+      });
+    });
+  }
+
+  private onMisfilled2GemClick(x: number, y: number, color: string): void {
+    if (this.animationInProgress) return;
     const key = this.getKey(x, y);
     const gemo = this.misfilledMap2.get(key)?.gem || this.stack2Map.get(key)?.gem || null;
+
+    if (this.chosenGems.find((gem) => gem === gemo)) {
+      return;
+    }
+
+    if (this.activeColor) {
+      this.putGemBack(this.chosenGems);
+      this.chosenGems = [];
+    }
+
+    this.activeColor = color;
 
     const gemsGroup = [
       this.gemsGroup21,
@@ -737,24 +781,7 @@ export class BoardView extends Container {
 
     if (gemsGroup) {
       this.chosenGems = gemsGroup.filter((g) => g !== null) as Sprite[];
-
-      this.chosenGems.forEach((gem, i) => {
-        anime({
-          targets: gem,
-          y: '-=20',
-          duration: 100,
-          delay: i * 4,
-          easing: 'easeInOutSine',
-        });
-        anime({
-          targets: gem.scale,
-          x: 1.1,
-          y: 1.1,
-          duration: 100,
-          delay: i * 4,
-          easing: 'easeInOutSine',
-        });
-      });
+      this.highlightGems(this.chosenGems, this.misfilledLayer2Gems);
     }
   }
 
@@ -777,7 +804,6 @@ export class BoardView extends Container {
       const activeColorCopy = this.activeColor;
       this.activeColor = '';
       this.animationInProgress = true;
-      console.warn('correctColor', correctColor === activeColorCopy);
 
       cellsGroup.forEach((c, i) => {
         const gem = this.chosenGems[this.chosenGems.length - i - 1];
@@ -796,7 +822,6 @@ export class BoardView extends Container {
               gem.texture = Texture.from(`gem_${correctColor}.png`);
               gem.eventMode = 'none';
               c.eventMode = 'none';
-              console.log('correct');
             }
 
             if (i === this.chosenGems.length - 1) {
