@@ -20,15 +20,13 @@ import {
   MISFILLED8,
   MISFILLED9,
 } from '../configs/LevelConfig';
-import { SpriteEffects } from '../utils/ShineEffects';
 import { makeSprite } from '../utils/Utils';
 
 const CELL_SIZE = 133;
 const CELL_COUNT_X = 64;
 const CELL_COUNT_Y = 56;
 
-// Animation constants
-const INIT_DELAY = 200; // 2 seconds
+const INIT_DELAY = 200;
 const ZOOM_DURATION = 1000;
 const ZOOM_SCALE = 2.2;
 
@@ -225,23 +223,13 @@ export class BoardView extends Container {
   }
 
   private onStackClick(): void {
-    if (!this.activeColor || this.animationInProgress) return;
-
-    if (this.stack1Filled) {
-      //
-    } else {
-      this.moveGemsToStack1();
-    }
+    if (!this.activeColor || this.animationInProgress || this.stack1Filled) return;
+    this.moveGemsToStack1();
   }
 
   private onStack2Click(): void {
-    if (!this.activeColor || this.animationInProgress) return;
-
-    if (this.stack2Filled) {
-      //
-    } else {
-      this.moveGemsToStack2();
-    }
+    if (!this.activeColor || this.animationInProgress || this.stack2Filled) return;
+    this.moveGemsToStack2();
   }
 
   private moveGemsToStack1(): void {
@@ -847,7 +835,23 @@ export class BoardView extends Container {
               if (correctColor === activeColorCopy) {
                 this.correctCounter++;
                 if (this.correctCounter === this.misfills) {
-                  this.zoomOut(true);
+                  this.zoomOut().then(() => {
+                    anime({
+                      targets: [this.misfilledLayer1, this.stack1],
+                      alpha: 0,
+                      duration: ZOOM_DURATION / 2,
+                      easing: 'easeInOutQuad',
+                    });
+                    anime({
+                      targets: [this.misfilledLayer2, this.stack2],
+                      alpha: 1,
+                      duration: ZOOM_DURATION / 2,
+                      easing: 'easeInOutQuad',
+                      complete: () => {
+                        this.zoomIntoSegment2();
+                      },
+                    });
+                  });
                 }
               }
             }
@@ -914,6 +918,67 @@ export class BoardView extends Container {
                 }
               });
               this.stack2Filled = false;
+
+              if (correctColor === activeColorCopy) {
+                this.correctCounter++;
+                if (this.correctCounter === this.misfills * 2) {
+                  this.zoomOut().then(() => {
+                    anime({
+                      targets: [this.backgroundLayer, this.gemsLayer],
+                      alpha: 1,
+                      duration: ZOOM_DURATION,
+                      easing: 'easeInOutQuad',
+                    });
+                    anime({
+                      targets: [this.misfilledLayer2, this.stack2],
+                      alpha: 0,
+                      duration: ZOOM_DURATION,
+                      easing: 'easeInOutQuad',
+                      complete: () => {
+                        [
+                          this.gemsGroup11,
+                          this.gemsGroup12,
+                          this.gemsGroup13,
+                          this.gemsGroup14,
+                          this.gemsGroup15,
+                          this.gemsGroup16,
+                          this.gemsGroup17,
+                          this.gemsGroup21,
+                          this.gemsGroup22,
+                          this.gemsGroup23,
+                          this.gemsGroup24,
+                          this.gemsGroup25,
+                          this.gemsGroup26,
+                          this.gemsGroup27,
+                          this.cellsGroup11,
+                          this.cellsGroup12,
+                          this.cellsGroup13,
+                          this.cellsGroup14,
+                          this.cellsGroup15,
+                          this.cellsGroup16,
+                          this.cellsGroup17,
+                          this.cellsGroup21,
+                          this.cellsGroup22,
+                          this.cellsGroup23,
+                          this.cellsGroup24,
+                          this.cellsGroup25,
+                          this.cellsGroup26,
+                          this.cellsGroup27,
+                        ].forEach((group) => {
+                          group.forEach((sprite) => sprite?.destroy());
+                        });
+                        this.misfilledMap1.clear();
+                        this.misfilledMap2.clear();
+                        this.stack1Map.clear();
+                        this.stack2Map.clear();
+                        this.chosenGems = [];
+                        this.activeColor = '';
+                        this.correctCounter = 0;
+                      },
+                    });
+                  });
+                }
+              }
             }
           },
         });
@@ -941,13 +1006,6 @@ export class BoardView extends Container {
         this.boardRoot.scale.set(animTarget.scaleX, animTarget.scaleY);
         this.boardRoot.position.set(animTarget.x, animTarget.y);
       },
-    });
-
-    anime({
-      targets: this.stack1,
-      alpha: 1,
-      duration: ZOOM_DURATION,
-      easing: 'easeInOutQuad',
     });
 
     anime({
@@ -1002,13 +1060,6 @@ export class BoardView extends Container {
     });
 
     anime({
-      targets: this.stack2,
-      alpha: 1,
-      duration: ZOOM_DURATION,
-      easing: 'easeInOutQuad',
-    });
-
-    anime({
       targets: [this.backgroundLayer, this.gemsLayer, this.misfilledLayer1],
       alpha: 0.1,
       duration: ZOOM_DURATION,
@@ -1016,7 +1067,7 @@ export class BoardView extends Container {
     });
   }
 
-  private zoomOut(switchSegment = false): void {
+  private zoomOut(): Promise<void> {
     const animTarget = {
       scaleX: this.boardRoot.scale.x,
       scaleY: this.boardRoot.scale.y,
@@ -1024,135 +1075,21 @@ export class BoardView extends Container {
       y: this.boardRoot.y,
     };
 
-    anime({
-      targets: animTarget,
-      scaleX: 1,
-      scaleY: 1,
-      x: 0,
-      y: 0,
-      duration: ZOOM_DURATION,
-      easing: 'easeInOutQuad',
-      update: () => {
-        this.boardRoot.scale.set(animTarget.scaleX, animTarget.scaleY);
-        this.boardRoot.position.set(animTarget.x, animTarget.y);
-      },
-      complete: () => {
-        if (switchSegment) {
-          anime({
-            targets: [this.misfilledLayer1, this.stack1],
-            alpha: 0,
-            duration: ZOOM_DURATION / 2,
-            easing: 'easeInOutQuad',
-          });
-          anime({
-            targets: [this.misfilledLayer2, this.stack2],
-            alpha: 1,
-            duration: ZOOM_DURATION / 2,
-            easing: 'easeInOutQuad',
-            complete: () => {
-              this.zoomIntoSegment2();
-            },
-          });
-        }
-      },
-    });
-  }
-
-  /**
-   * Example: Apply shine effect to all gems in a group
-   * This demonstrates how to use the shine effects on multiple sprites efficiently
-   */
-  public shineGemsGroup(groupIndex: number): void {
-    const allGemGroups = [
-      this.gemsGroup11,
-      this.gemsGroup12,
-      this.gemsGroup13,
-      this.gemsGroup14,
-      this.gemsGroup15,
-      this.gemsGroup16,
-      this.gemsGroup17,
-      this.gemsGroup21,
-      this.gemsGroup22,
-      this.gemsGroup23,
-      this.gemsGroup24,
-      this.gemsGroup25,
-      this.gemsGroup26,
-      this.gemsGroup27,
-    ];
-
-    const gemGroup = allGemGroups[groupIndex];
-    if (!gemGroup) return;
-
-    const sprites = gemGroup.filter((g) => g !== null) as Sprite[];
-
-    // Apply shine effect to all sprites in the group
-    // Optimized for performance - can handle 22+ sprites simultaneously
-    SpriteEffects.addShineToSprites(sprites, {
-      duration: 300,
-      direction: 45, // 45 degree angle
-      width: 0.3,
-      intensity: 0.2,
-      easing: 'linear',
-    });
-  }
-
-  /**
-   * Example: Apply reveal effect to selected gems
-   */
-  public revealGems(sprites: Sprite[]): void {
-    SpriteEffects.addRevealToSprites(sprites, {
-      duration: 800,
-      direction: 'left',
-      easing: 'easeInOutQuad',
-      onComplete: () => {
-        console.log('Reveal animation complete');
-      },
-    });
-  }
-
-  /**
-   * Example: Apply wipe effect to selected gems
-   */
-  public wipeGems(sprites: Sprite[]): void {
-    SpriteEffects.addWipeToSprites(sprites, {
-      duration: 1000,
-      direction: 'right',
-      edgeSoftness: 0.15,
-      easing: 'easeInOutQuad',
-      onComplete: () => {
-        console.log('Wipe animation complete');
-      },
-    });
-  }
-
-  /**
-   * Example: Remove shine effects from all gems in a group
-   */
-  public removeShineFromGroup(groupIndex: number): void {
-    const allGemGroups = [
-      this.gemsGroup11,
-      this.gemsGroup12,
-      this.gemsGroup13,
-      this.gemsGroup14,
-      this.gemsGroup15,
-      this.gemsGroup16,
-      this.gemsGroup17,
-      this.gemsGroup21,
-      this.gemsGroup22,
-      this.gemsGroup23,
-      this.gemsGroup24,
-      this.gemsGroup25,
-      this.gemsGroup26,
-      this.gemsGroup27,
-    ];
-
-    const gemGroup = allGemGroups[groupIndex];
-    if (!gemGroup) return;
-
-    gemGroup.forEach((gem) => {
-      if (gem) {
-        SpriteEffects.removeEffect(gem, 'shine');
-      }
+    return new Promise((resolve) => {
+      anime({
+        targets: animTarget,
+        scaleX: 1,
+        scaleY: 1,
+        x: 500,
+        y: 0,
+        duration: ZOOM_DURATION,
+        easing: 'easeInOutQuad',
+        update: () => {
+          this.boardRoot.scale.set(animTarget.scaleX, animTarget.scaleY);
+          this.boardRoot.position.set(animTarget.x, animTarget.y);
+        },
+        complete: () => resolve(),
+      });
     });
   }
 }

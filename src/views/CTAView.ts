@@ -1,25 +1,19 @@
 import { lego } from '@armathai/lego';
+import { Container } from '@pixi/display';
 import { Graphics } from '@pixi/graphics';
 import anime from 'animejs';
 import { PixiGrid } from 'libs/grid';
-import { CtaContent, CTAContentType } from '../components/CtaContent';
 import { getCTAGridConfig } from '../configs/gridConfigs/CTAViewGC';
-import { CtaModelEvents, GameModelEvents } from '../lego/events/ModelEvents';
-import { GameState } from '../models/GameModel';
+import { CtaModelEvents } from '../lego/events/ModelEvents';
 
 export class CTAView extends PixiGrid {
   private blocker: Graphics = new Graphics();
-  private content: CtaContent | undefined;
-
-  private canShowContent = false;
-  private hasShownContent = false;
+  private content: Container = new Container();
 
   constructor() {
     super();
 
-    lego.event
-      .on(CtaModelEvents.VisibleUpdate, this.visibleUpdate, this)
-      .on(GameModelEvents.StateUpdate, this.onGameStateUpdate, this);
+    lego.event.on(CtaModelEvents.VisibleUpdate, this.visibleUpdate, this);
     this.build();
   }
 
@@ -27,27 +21,9 @@ export class CTAView extends PixiGrid {
     return getCTAGridConfig();
   }
 
-  public rebuild(config?: ICellConfig | undefined): void {
+  public rebuild(): void {
     super.rebuild(this.getGridConfig());
   }
-
-  private onGameStateUpdate(state: GameState): void {
-    if (state === GameState.Win || state === GameState.Lose) {
-      this.content = new CtaContent(
-        state === GameState.Win ? CTAContentType.Win : CTAContentType.Lose,
-      );
-
-      this.canShowContent = true;
-
-      if (state === GameState.Lose && !this.hasShownContent) {
-        this.hasShownContent = true;
-        this.attach('content', this.content);
-        this.content.show();
-        this.showBlocker();
-      }
-    }
-  }
-
 
   private build(): void {
     this.buildBlocker();
@@ -63,7 +39,7 @@ export class CTAView extends PixiGrid {
 
   private visibleUpdate(visible: boolean): void {
     if (visible) {
-      // this.showBlocker();
+      this.showBlocker();
     } else {
       this.blocker.eventMode = 'none';
       this.blocker.alpha = 0;
