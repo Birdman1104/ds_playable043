@@ -2,19 +2,11 @@ import { lego } from '@armathai/lego';
 import {
   onAdStatusUpdateCommand,
   onSoundToggleCommand,
-  takeToStoreCommand
+  takeToStoreCommand,
 } from './commands/AdCommands';
-import {
-  onFirstClickCommand,
-  onGameModelStateUpdateCommand
-} from './commands/GameCommands';
-import { onMainViewReadyCommand } from './commands/MainCommands';
-import {
-  CTAEvents,
-  MainGameEvents,
-  SoundEvents,
-  UIEvents,
-} from './events/MainEvents';
+import { onFirstClickCommand, onGameModelStateUpdateCommand } from './commands/GameCommands';
+import { onMainViewReadyCommand, setAdToCTACommand } from './commands/MainCommands';
+import { CTAEvents, MainGameEvents, SoundEvents, UIEvents } from './events/MainEvents';
 import { AdModelEvents, GameModelEvents } from './events/ModelEvents';
 
 export const mapCommands = () => {
@@ -53,5 +45,9 @@ const eventCommandPairs = Object.freeze([
   {
     event: SoundEvents.Click,
     command: onFirstClickCommand,
+  },
+  {
+    event: MainGameEvents.AdToCTA,
+    command: setAdToCTACommand,
   },
 ]);

@@ -1,33 +1,9 @@
 {
   "frames": {
-    "pcta.png": {
-      "frame": {
-        "x": 3,
-        "y": 3,
-        "w": 303,
-        "h": 107
-      },
-      "rotated": false,
-      "trimmed": true,
-      "spriteSourceSize": {
-        "x": 0,
-        "y": 2,
-        "w": 303,
-        "h": 107
-      },
-      "sourceSize": {
-        "w": 303,
-        "h": 111
-      },
-      "pivot": {
-        "x": 0.5,
-        "y": 0.5
-      }
-    },
     "circle.png": {
       "frame": {
         "x": 3,
-        "y": 116,
+        "y": 3,
         "w": 146,
         "h": 146
       },
@@ -51,7 +27,7 @@
     "sound_off.png": {
       "frame": {
         "x": 155,
-        "y": 116,
+        "y": 3,
         "w": 117,
         "h": 109
       },
@@ -74,12 +50,12 @@
     },
     "sound_on.png": {
       "frame": {
-        "x": 3,
-        "y": 268,
+        "x": 155,
+        "y": 126,
         "w": 117,
         "h": 109
       },
-      "rotated": false,
+      "rotated": true,
       "trimmed": true,
       "spriteSourceSize": {
         "x": 1,
@@ -103,8 +79,8 @@
     "image": "ui.png",
     "format": "RGBA8888",
     "size": {
-      "w": 309,
-      "h": 380
+      "w": 267,
+      "h": 246
     },
     "scale": 1
   }

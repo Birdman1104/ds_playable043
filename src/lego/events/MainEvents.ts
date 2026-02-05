@@ -7,12 +7,12 @@ export const MainGameEvents = Object.freeze({
   Resize: 'MainGameEventsResize',
   MainViewReady: 'MainGameEventsMainViewReady',
   MuteUpdate: 'MainGameEventsMuteUpdate',
+  AdToCTA: 'MainGameEventsAdToCTA',
 });
 
 export const UIEvents = Object.freeze({
   SoundButtonClick: 'UIEventsSoundButtonClick',
 });
-
 
 export const SoundEvents = Object.freeze({
   Click: 'SoundEventsClick',

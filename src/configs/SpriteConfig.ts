@@ -26,6 +26,15 @@ export const getLogoSpriteConfig = (
   };
 };
 
+export const getButtonSpriteConfig = (): SpriteConfig => {
+  return {
+    atlas: 'game',
+    frame: `button.png`,
+    scaleX: 0.4,
+    scaleY: 0.4,
+  };
+};
+
 export const getBackgroundSpriteConfig = (): SpriteConfig => {
   return {
     frame: `bkg.jpg`,

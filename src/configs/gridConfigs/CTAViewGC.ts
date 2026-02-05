@@ -1,5 +1,5 @@
-import { lp } from '../../utils/Utils';
 import { CellScale } from '../../libs/grid';
+import { lp } from '../../utils/Utils';
 
 export const getCTAGridConfig = () => {
   return lp(getCTAGridLandscapeConfig, getCTAGridPortraitConfig).call(null);
@@ -18,8 +18,12 @@ const getCTAGridLandscapeConfig = () => {
     area,
     cells: [
       {
-        name: 'content',
-        bounds: { x: 0, y: 0, width: 1, height: 1 },
+        name: 'logo',
+        bounds: { x: 0.15, y: 0, width: 0.7, height: 0.6 },
+      },
+      {
+        name: 'button',
+        bounds: { x: 0.15, y: 0.6, width: 0.7, height: 0.4 },
       },
       {
         name: 'blocker',
@@ -43,8 +47,12 @@ const getCTAGridPortraitConfig = () => {
     area,
     cells: [
       {
-        name: 'content',
-        bounds: { x: 0, y: 0, width: 1, height: 1 },
+        name: 'logo',
+        bounds: { x: 0.15, y: 0, width: 0.7, height: 0.7 },
+      },
+      {
+        name: 'button',
+        bounds: { x: 0.15, y: 0.7, width: 0.7, height: 0.3 },
       },
       {
         name: 'blocker',

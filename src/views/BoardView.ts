@@ -1,3 +1,4 @@
+import { lego } from '@armathai/lego';
 import { Texture } from '@pixi/core';
 import { Container } from '@pixi/display';
 import { Rectangle } from '@pixi/math';
@@ -20,13 +21,14 @@ import {
   MISFILLED8,
   MISFILLED9,
 } from '../configs/LevelConfig';
-import { makeSprite } from '../utils/Utils';
+import { MainGameEvents } from '../lego/events/MainEvents';
+import { delayRunnable, makeSprite } from '../utils/Utils';
 
 const CELL_SIZE = 133;
 const CELL_COUNT_X = 64;
 const CELL_COUNT_Y = 56;
 
-const INIT_DELAY = 200;
+const INIT_DELAY = 0.2;
 const ZOOM_DURATION = 1000;
 const ZOOM_SCALE = 2.2;
 
@@ -118,6 +120,8 @@ export class BoardView extends Container {
     super();
 
     this.addChild(this.boardRoot);
+    this.boardRoot.x = 500;
+
     this.boardRoot.addChild(this.backgroundLayer);
     this.boardRoot.addChild(this.gemsLayer);
     this.boardRoot.addChild(this.stack1);
@@ -135,9 +139,9 @@ export class BoardView extends Container {
     this.buildSegment1();
     this.buildSegment2();
 
-    setTimeout(() => {
+    delayRunnable(INIT_DELAY, () => {
       this.zoomIntoSegment1();
-    }, INIT_DELAY);
+    });
   }
 
   public getBounds(): Rectangle {
@@ -974,6 +978,10 @@ export class BoardView extends Container {
                         this.chosenGems = [];
                         this.activeColor = '';
                         this.correctCounter = 0;
+
+                        delayRunnable(1000, () => {
+                          lego.event.emit(MainGameEvents.AdToCTA);
+                        });
                       },
                     });
                   });

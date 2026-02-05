@@ -1,9 +1,33 @@
 {
   "frames": {
-    "logo_1.png": {
+    "button.png": {
       "frame": {
         "x": 3,
         "y": 3,
+        "w": 609,
+        "h": 211
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 71,
+        "y": 80,
+        "w": 609,
+        "h": 211
+      },
+      "sourceSize": {
+        "w": 752,
+        "h": 371
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    "logo_1.png": {
+      "frame": {
+        "x": 3,
+        "y": 220,
         "w": 468,
         "h": 265
       },
@@ -27,7 +51,7 @@
     "logo_2.png": {
       "frame": {
         "x": 3,
-        "y": 274,
+        "y": 491,
         "w": 468,
         "h": 265
       },
@@ -51,7 +75,7 @@
     "play_now_btn.png": {
       "frame": {
         "x": 477,
-        "y": 3,
+        "y": 220,
         "w": 333,
         "h": 82
       },
@@ -79,8 +103,8 @@
     "image": "game.png",
     "format": "RGBA8888",
     "size": {
-      "w": 562,
-      "h": 542
+      "w": 615,
+      "h": 759
     },
     "scale": 1
   }

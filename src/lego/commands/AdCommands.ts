@@ -21,8 +21,6 @@ export const onAdStatusUpdateCommand = (status: AdStatus): void => {
       break;
     case AdStatus.CTA:
       lego.command.execute(showCtaCommand);
-      //
-
       break;
     default:
       break;
@@ -46,6 +44,10 @@ export const onSoundToggleCommand = (): void => {
   Head.ad?.sound?.toggle();
 };
 export const takeToStoreCommand = (): void => {
-  // @ts-ignore
-  Luna.Unity.Playable.InstallFullGame();
+  try {
+    // @ts-ignore
+    Luna.Unity.Playable.InstallFullGame();
+  } catch (error) {
+    alert('takes to store');
+  }
 };

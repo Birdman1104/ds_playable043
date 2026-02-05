@@ -1,7 +1,7 @@
 import { lego } from '@armathai/lego';
-import Head from '../../models/HeadModel';
-import { AdStatus } from '../../models/AdModel';
 import { hintParamGuard } from 'lego/guards/GameGuards';
+import { AdStatus } from '../../models/AdModel';
+import Head from '../../models/HeadModel';
 
 export const initAdModelCommand = (): void => Head.initializeADModel();
 export const showCtaCommand = (): void => Head.ad?.cta?.show();
@@ -19,6 +19,7 @@ export const setHintVisibleCommand = (value: boolean): void => {
   Head.gameModel?.hintModel?.setVisibility(value);
 };
 
+export const setAdToCTACommand = (): void => Head.ad?.setAdStatus(AdStatus.CTA);
 const setAdStatusCommand = (status: AdStatus): void => Head.ad?.setAdStatus(status);
 const initializeGameModelCommand = (): void => Head.initializeGameModel();
 const initializeCtaModelCommand = (): void => Head.ad?.initializeCtaModel();
