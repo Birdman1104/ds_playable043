@@ -20,6 +20,7 @@ import {
   MISFILLED8,
   MISFILLED9,
 } from '../configs/LevelConfig';
+import { SpriteEffects } from '../utils/ShineEffects';
 import { makeSprite } from '../utils/Utils';
 
 const CELL_SIZE = 133;
@@ -129,14 +130,7 @@ export class BoardView extends Container {
     this.misfilledLayer2.addChild(this.misfilledLayer2Gems);
     this.boardRoot.addChild(this.misfilledLayer1);
     this.boardRoot.addChild(this.misfilledLayer2);
-    this.init();
-  }
 
-  public getBounds(): Rectangle {
-    return new Rectangle(250, 250, CELL_SIZE * CELL_COUNT_X + 500, CELL_SIZE * CELL_COUNT_Y + 500);
-  }
-
-  private init(): void {
     this.drawBoard();
     this.buildStack1();
     this.buildStack2();
@@ -146,6 +140,10 @@ export class BoardView extends Container {
     setTimeout(() => {
       this.zoomIntoSegment1();
     }, INIT_DELAY);
+  }
+
+  public getBounds(): Rectangle {
+    return new Rectangle(250, 250, CELL_SIZE * CELL_COUNT_X + 500, CELL_SIZE * CELL_COUNT_Y + 500);
   }
 
   private drawBoard(): void {
@@ -1032,6 +1030,104 @@ export class BoardView extends Container {
           });
         }
       },
+    });
+  }
+
+  /**
+   * Example: Apply shine effect to all gems in a group
+   * This demonstrates how to use the shine effects on multiple sprites efficiently
+   */
+  public shineGemsGroup(groupIndex: number): void {
+    const allGemGroups = [
+      this.gemsGroup11,
+      this.gemsGroup12,
+      this.gemsGroup13,
+      this.gemsGroup14,
+      this.gemsGroup15,
+      this.gemsGroup16,
+      this.gemsGroup17,
+      this.gemsGroup21,
+      this.gemsGroup22,
+      this.gemsGroup23,
+      this.gemsGroup24,
+      this.gemsGroup25,
+      this.gemsGroup26,
+      this.gemsGroup27,
+    ];
+
+    const gemGroup = allGemGroups[groupIndex];
+    if (!gemGroup) return;
+
+    const sprites = gemGroup.filter((g) => g !== null) as Sprite[];
+
+    // Apply shine effect to all sprites in the group
+    // Optimized for performance - can handle 22+ sprites simultaneously
+    SpriteEffects.addShineToSprites(sprites, {
+      duration: 300,
+      direction: 45, // 45 degree angle
+      width: 0.3,
+      intensity: 0.2,
+      easing: 'linear',
+    });
+  }
+
+  /**
+   * Example: Apply reveal effect to selected gems
+   */
+  public revealGems(sprites: Sprite[]): void {
+    SpriteEffects.addRevealToSprites(sprites, {
+      duration: 800,
+      direction: 'left',
+      easing: 'easeInOutQuad',
+      onComplete: () => {
+        console.log('Reveal animation complete');
+      },
+    });
+  }
+
+  /**
+   * Example: Apply wipe effect to selected gems
+   */
+  public wipeGems(sprites: Sprite[]): void {
+    SpriteEffects.addWipeToSprites(sprites, {
+      duration: 1000,
+      direction: 'right',
+      edgeSoftness: 0.15,
+      easing: 'easeInOutQuad',
+      onComplete: () => {
+        console.log('Wipe animation complete');
+      },
+    });
+  }
+
+  /**
+   * Example: Remove shine effects from all gems in a group
+   */
+  public removeShineFromGroup(groupIndex: number): void {
+    const allGemGroups = [
+      this.gemsGroup11,
+      this.gemsGroup12,
+      this.gemsGroup13,
+      this.gemsGroup14,
+      this.gemsGroup15,
+      this.gemsGroup16,
+      this.gemsGroup17,
+      this.gemsGroup21,
+      this.gemsGroup22,
+      this.gemsGroup23,
+      this.gemsGroup24,
+      this.gemsGroup25,
+      this.gemsGroup26,
+      this.gemsGroup27,
+    ];
+
+    const gemGroup = allGemGroups[groupIndex];
+    if (!gemGroup) return;
+
+    gemGroup.forEach((gem) => {
+      if (gem) {
+        SpriteEffects.removeEffect(gem, 'shine');
+      }
     });
   }
 }
