@@ -28,7 +28,7 @@ const CELL_SIZE = 133;
 const CELL_COUNT_X = 64;
 const CELL_COUNT_Y = 56;
 
-const INIT_DELAY = 0.2;
+const INIT_DELAY = 0.6;
 const ZOOM_DURATION = 1000;
 const ZOOM_SCALE = 2.2;
 
