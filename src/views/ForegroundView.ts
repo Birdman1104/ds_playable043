@@ -1,4 +1,5 @@
 import { lego } from '@armathai/lego';
+import { Container } from '@pixi/display';
 import { Sprite } from '@pixi/sprite';
 import anime from 'animejs';
 import { GameModelEvents } from 'lego/events/ModelEvents';
@@ -9,8 +10,36 @@ import { getLogoSpriteConfig } from '../configs/SpriteConfig';
 import { CTAEvents } from '../lego/events/MainEvents';
 import { makeSprite } from '../utils/Utils';
 
+class Logo extends Container {
+  private logo1: Sprite | null = null;
+  private logo2: Sprite | null = null;
+  constructor() {
+    super();
+
+    this.logo1 = makeSprite(getLogoSpriteConfig(1, 0, 0));
+    this.logo2 = makeSprite(getLogoSpriteConfig(2, 0, 0));
+    this.addChild(this.logo1);
+    this.addChild(this.logo2);
+
+    this.logo2.alpha = 0;
+
+    this.logo1.eventMode = 'static';
+    this.logo1.on('pointerdown', () => {
+      lego.event.emit(CTAEvents.TakeToStore);
+    });
+
+    anime({
+      targets: this.logo2,
+      alpha: 1,
+      duration: 800,
+      easing: 'easeInOutSine',
+      loop: true,
+      direction: 'alternate',
+    });
+  }
+}
 export class ForegroundView extends PixiGrid {
-  private logo: Sprite | null = null;
+  private logo: Logo = new Logo();
 
   constructor() {
     super();
@@ -29,15 +58,6 @@ export class ForegroundView extends PixiGrid {
   }
 
   private build(): void {
-    this.initLogo();
-  }
-
-  private initLogo(): void {
-    this.logo = makeSprite(getLogoSpriteConfig(0, 0));
-    this.logo.eventMode = 'static';
-    this.logo.on('pointerdown', () => {
-      lego.event.emit(CTAEvents.TakeToStore);
-    });
     this.attach('logo', this.logo);
   }
 

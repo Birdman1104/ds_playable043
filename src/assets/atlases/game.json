@@ -1,0 +1,87 @@
+{
+  "frames": {
+    "logo_1.png": {
+      "frame": {
+        "x": 3,
+        "y": 3,
+        "w": 468,
+        "h": 265
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 468,
+        "h": 265
+      },
+      "sourceSize": {
+        "w": 468,
+        "h": 265
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    "logo_2.png": {
+      "frame": {
+        "x": 3,
+        "y": 274,
+        "w": 468,
+        "h": 265
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 468,
+        "h": 265
+      },
+      "sourceSize": {
+        "w": 468,
+        "h": 265
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    "play_now_btn.png": {
+      "frame": {
+        "x": 477,
+        "y": 3,
+        "w": 333,
+        "h": 82
+      },
+      "rotated": true,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 333,
+        "h": 82
+      },
+      "sourceSize": {
+        "w": 333,
+        "h": 82
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    }
+  },
+  "meta": {
+    "app": "http://github.com/odrick/free-tex-packer-core",
+    "version": "0.3.4",
+    "image": "game.png",
+    "format": "RGBA8888",
+    "size": {
+      "w": 562,
+      "h": 542
+    },
+    "scale": 1
+  }
+}

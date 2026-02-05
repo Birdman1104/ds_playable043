@@ -8,12 +8,12 @@ const getForegroundGridLandscapeConfig = () => {
   const area = { x: 0, y: 0, width: document.body.clientWidth, height: document.body.clientHeight };
   return {
     name: 'foreground',
-    // debug: { color: 0xff5027 },
+    debug: { color: 0xff5027 },
     area,
     cells: [
       {
         name: 'logo',
-        bounds: { x: 0.025, y: 0, width: 0.1, height: 0.1 },
+        bounds: { x: 0.01, y: 0, width: 0.125, height: 0.1 },
       },
     ],
   };
@@ -23,12 +23,12 @@ const getForegroundGridPortraitConfig = () => {
   const area = { x: 0, y: 0, width: document.body.clientWidth, height: document.body.clientHeight };
   return {
     name: 'foreground',
-    // debug: { color: 0xff5027 },
+    debug: { color: 0xff5027 },
     area,
     cells: [
       {
         name: 'logo',
-        bounds: { x: 0, y: 0, width: 0.3, height: 0.08 },
+        bounds: { x: 0, y: 0.01, width: 0.4, height: 0.1 },
       },
     ],
   };

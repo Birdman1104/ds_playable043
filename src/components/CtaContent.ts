@@ -1,6 +1,4 @@
-import {
-  getLogoSpriteConfig,
-} from '../configs/SpriteConfig';
+import { getLogoSpriteConfig } from '../configs/SpriteConfig';
 import { makeSprite } from '../utils/Utils';
 
 import { Container } from '@pixi/display';
@@ -44,7 +42,7 @@ export class CtaContent extends Container {
   }
 
   private initWinContent(): void {
-    const logo = makeSprite(getLogoSpriteConfig(600, 120, 1.5));
+    const logo = makeSprite(getLogoSpriteConfig(1, 600, 120, 1.5));
 
     this.addChild(logo);
 
@@ -57,7 +55,7 @@ export class CtaContent extends Container {
   }
 
   private initLoseContent(): void {
-    const failImage = makeSprite(getLogoSpriteConfig(600, 250));
+    const failImage = makeSprite(getLogoSpriteConfig(1, 600, 250));
     this.addChild(failImage);
   }
 
@@ -75,6 +73,5 @@ export class CtaContent extends Container {
       loop: true,
       delay: 500,
     });
-
   }
 }

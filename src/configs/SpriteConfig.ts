@@ -1,6 +1,5 @@
 import { Point } from '@pixi/math';
 
-
 export const getChestRaysSpriteConfig = (): SpriteConfig => {
   return {
     atlas: 'loots',
@@ -11,10 +10,15 @@ export const getChestRaysSpriteConfig = (): SpriteConfig => {
     anchor: new Point(0.5, 0.5),
   };
 };
-export const getLogoSpriteConfig = (x: number, y: number, scale?: number): SpriteConfig => {
+export const getLogoSpriteConfig = (
+  type: 1 | 2,
+  x: number,
+  y: number,
+  scale?: number,
+): SpriteConfig => {
   return {
-    atlas: 'preload',
-    frame: `progress_logo.png`,
+    atlas: 'game',
+    frame: `logo_${type}.png`,
     x,
     y,
     scaleX: scale ?? 0.8,

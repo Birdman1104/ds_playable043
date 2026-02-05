@@ -5,7 +5,7 @@ import { Spritesheet } from '@pixi/spritesheet';
 import { SPINES_MANIFEST } from 'assetsInfo/spines';
 import SoundController from 'components/SoundController';
 import PixiStage from 'MainStage';
-import { ATLASES, PRELOAD_ATLAS } from './assetsInfo/atlases';
+import { ATLASES } from './assetsInfo/atlases';
 import { IMAGES } from './assetsInfo/images';
 import { SPRITESHEET } from './assetsInfo/spriteSheets';
 import { ScreenSizeConfig } from './configs/ScreenSizeConfig';
@@ -37,7 +37,7 @@ class App extends Application {
       this.initStats();
       // this.initLego();
     }
-    await this.loadPreloadAssets();
+    // await this.loadPreloadAssets();
 
     await this.loadAssets();
     this.appResize();
@@ -59,14 +59,14 @@ class App extends Application {
     lego.event.emit(MainGameEvents.MuteUpdate, value);
   }
 
-  private async loadPreloadAssets(): Promise<void> {
-    const { name, img, json } = PRELOAD_ATLAS;
+  // private async loadPreloadAssets(): Promise<void> {
+  //   const { name, img, json } = PRELOAD_ATLAS;
 
-    const sheetTexture = await Assets.load({ alias: `${name}.png`, src: img });
-    SPRITESHEET[name] = new Spritesheet(sheetTexture, json);
-    await SPRITESHEET[name].parse();
-    await Assets.load({ alias: PRELOAD_ATLAS.name, src: 'path' });
-  }
+  //   const sheetTexture = await Assets.load({ alias: `${name}.png`, src: img });
+  //   SPRITESHEET[name] = new Spritesheet(sheetTexture, json);
+  //   await SPRITESHEET[name].parse();
+  //   await Assets.load({ alias: PRELOAD_ATLAS.name, src: 'path' });
+  // }
 
   private async loadAssets(): Promise<void> {
     SoundController.loadSounds();
@@ -115,11 +115,11 @@ class App extends Application {
       };
     }
 
-    const spineFiles = SPINES_MANIFEST.map((s) => s.alias);
+    // const spineFiles = SPINES_MANIFEST.map((s) => s.alias);
 
-    for (const file of spineFiles) {
-      await Assets.load(file, () => onProgress());
-    }
+    // for (const file of spineFiles) {
+    //   await Assets.load(file, () => onProgress());
+    // }
   }
 
   private onLoadComplete(): void {
