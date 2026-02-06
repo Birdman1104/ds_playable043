@@ -3,7 +3,6 @@ import { Texture } from '@pixi/core';
 import { Container } from '@pixi/display';
 import { Point, Rectangle } from '@pixi/math';
 import { Sprite } from '@pixi/sprite';
-import { Text } from '@pixi/text';
 import anime from 'animejs';
 import {
   LEVEL_CONFIG,
@@ -129,7 +128,6 @@ export class BoardView extends Container {
   private animationInProgress = false;
 
   private hand: Sprite = makeSprite(getHandSpriteConfig());
-  private hintTimer: any = null;
 
   constructor() {
     super();
@@ -194,6 +192,7 @@ export class BoardView extends Container {
     this.stack1.position.set(startX, startY);
     this.stack1Overlay.position.set(startX, startY);
     this.stack1Slots = [];
+
     const background = makeSprite({
       atlas: 'game',
       frame: 'stack_bkg.png',
@@ -301,8 +300,6 @@ export class BoardView extends Container {
 
   private moveGemsToStack1(): void {
     this.animationInProgress = true;
-
-    console.warn('***** THIS STACK IS FILLED');
     this.stack1Filled = true;
     this.activeColor = '';
     this.stack1Slots.forEach((s, i) => {
@@ -329,7 +326,6 @@ export class BoardView extends Container {
                     correct: m.correct,
                     gem: null,
                   });
-                  console.log(k, this.misfilledMap1.get(k));
                 }
               });
             });
@@ -363,7 +359,7 @@ export class BoardView extends Container {
             this.chosenGems.forEach((gem) => {
               this.misfilledMap2.forEach((m, k) => {
                 if (m.gem === gem) {
-                  this.stack2Map.set(k, { gem: gem as Sprite });
+                  this.stack2Map.set(i.toString(), { gem: gem as Sprite });
                   this.misfilledMap2.set(k, {
                     background: m.background,
                     wrong: m.wrong,
@@ -513,11 +509,6 @@ export class BoardView extends Container {
           gem: gem,
         });
       }
-
-      const text = new Text(key, { fontSize: 50, fontWeight: 'bold', fill: '#000000' });
-      text.x = cx - 60;
-      text.y = cy;
-      this.misfilledLayer1.addChild(text);
     }
 
     const gemsGroup11 = MISFILLED1.map((position) => {
@@ -602,9 +593,9 @@ export class BoardView extends Container {
   private buildSegment2(): void {
     const segment = LEVEL_CONFIG.data.Segments?.[1];
     if (!segment || segment.Positions.length === 0) return;
-    const { height } = this.getBounds();
 
     const misfilledMap = this.getMisfilledMap2();
+    const { height } = this.getBounds();
     const layoutColorMap = new Map<string, string>();
 
     for (const block of LEVEL_CONFIG.data.Layout) {
@@ -643,7 +634,7 @@ export class BoardView extends Container {
           y: cy,
         });
         empty.eventMode = 'static';
-        empty.on('pointerdown', () => this.onMisfilled2EmptyClick(x, y, misfilled.correct));
+        empty.on('pointerdown', () => this.onMisfilled2EmptyClick(empty, misfilled.correct));
         this.misfilledLayer2Background.addChild(empty);
 
         const gem = makeSprite({
@@ -911,14 +902,11 @@ export class BoardView extends Container {
                   correct: m.correct,
                   gem: null,
                 });
-                console.warn(this.misfilledMap1.get(k), k);
               }
             });
             this.stack1Map.forEach((m, k) => {
               if (m.gem === gem) {
-                console.warn('DELET FROM STACK1 MAP');
                 this.stack1Map.delete(k);
-
                 this.stack1Filled = false;
               }
             });
@@ -930,11 +918,9 @@ export class BoardView extends Container {
             }
 
             if (i === this.chosenGems.length - 1) {
-              // Store chosenGems before clearing, so we can check if they came from stack1
               const placedGems = [...this.chosenGems];
 
               this.misfilledMap1.forEach((m, k) => {
-                // check if the background is one of teh cellsGroup
                 if (cellsGroup.find((c) => c === m.background)) {
                   this.misfilledMap1.set(k, {
                     background: m.background,
@@ -942,25 +928,18 @@ export class BoardView extends Container {
                     correct: m.correct,
                     gem: this.chosenGems[this.chosenGems.length - i - 1],
                   });
-
-                  console.warn(k, this.misfilledMap1.get(k));
                 }
               });
 
-              // Check if any gems were moved from stack1 and clean up stack1Map
               let gemsFromStack1 = false;
               this.stack1Map.forEach((m, k) => {
-                // Check if this gem from stack1 was in the placedGems array
                 if (m.gem && placedGems.includes(m.gem)) {
                   this.stack1Map.delete(k);
                   gemsFromStack1 = true;
                 }
               });
 
-              // If gems were moved from stack1 and stack is now empty, mark it as not filled
               if (gemsFromStack1 && this.stack1Map.size === 0) {
-                console.warn('***** THIS STACK IS EMPTY');
-
                 this.stack1Filled = false;
               }
 
@@ -996,11 +975,10 @@ export class BoardView extends Container {
     }
   }
 
-  private onMisfilled2EmptyClick(x: number, y: number, correctColor: string): void {
+  private onMisfilled2EmptyClick(cell: Sprite, correctColor: string): void {
     if (!this.activeColor || this.animationInProgress) return;
     this.restartHint();
-    const cellKey = this.getKey(x, y);
-    const cell = this.misfilledMap2.get(cellKey)?.background;
+
     const cellsGroup = [
       this.cellsGroup21,
       this.cellsGroup22,
@@ -1015,6 +993,7 @@ export class BoardView extends Container {
       const activeColorCopy = this.activeColor;
       this.activeColor = '';
       this.animationInProgress = true;
+
       cellsGroup.forEach((c, i) => {
         const gem = this.chosenGems[this.chosenGems.length - i - 1];
         if (!gem) return;
@@ -1027,6 +1006,24 @@ export class BoardView extends Container {
           delay: i * 10,
           easing: 'easeInOutSine',
           complete: () => {
+            this.misfilledMap2.forEach((m, k) => {
+              if (m.gem === gem) {
+                this.misfilledMap2.set(k, {
+                  background: m.background,
+                  wrong: m.wrong,
+                  correct: m.correct,
+                  gem: null,
+                });
+              }
+            });
+
+            this.stack2Map.forEach((m, k) => {
+              if (m.gem === gem) {
+                this.stack2Map.delete(k);
+                this.stack2Filled = false;
+              }
+            });
+
             gem.scale.set(1, 1);
             if (activeColorCopy === correctColor) {
               gem.texture = Texture.from(`gem_${correctColor}.png`);
@@ -1035,8 +1032,10 @@ export class BoardView extends Container {
             }
 
             if (i === this.chosenGems.length - 1) {
+              const placedGems = [...this.chosenGems];
+
               this.misfilledMap2.forEach((m, k) => {
-                if (m.background === cell) {
+                if (cellsGroup.find((c) => c === m.background)) {
                   this.misfilledMap2.set(k, {
                     background: m.background,
                     wrong: m.wrong,
@@ -1045,20 +1044,27 @@ export class BoardView extends Container {
                   });
                 }
               });
-              this.chosenGems = [];
-              this.animationInProgress = false;
+
+              let gemsFromStack2 = false;
               this.stack2Map.forEach((m, k) => {
-                if (m.gem === gem) {
+                if (m.gem && placedGems.includes(m.gem)) {
                   this.stack2Map.delete(k);
+                  gemsFromStack2 = true;
                 }
               });
-              this.stack2Filled = false;
+
+              if (gemsFromStack2 && this.stack2Map.size === 0) {
+                this.stack2Filled = false;
+              }
+
+              this.chosenGems = [];
+              this.animationInProgress = false;
 
               if (correctColor === activeColorCopy) {
-                this.stopHintTimer();
-                this.hideHint();
                 this.correctCounter++;
                 if (this.correctCounter === this.misfills * 2) {
+                  this.stopHintTimer();
+                  this.hideHint();
                   this.zoomOut().then(() => {
                     anime({
                       targets: [this.backgroundLayer, this.gemsLayer],
@@ -1112,7 +1118,7 @@ export class BoardView extends Container {
                         this.activeColor = '';
                         this.correctCounter = 0;
 
-                        delayRunnable(1000, () => {
+                        delayRunnable(0.8, () => {
                           lego.event.emit(MainGameEvents.AdToCTA);
                         });
                       },
@@ -1237,7 +1243,6 @@ export class BoardView extends Container {
   }
 
   private getHintPositions(): Point[] {
-    // Determine which segment is active
     const isSegment1 = this.correctCounter < this.misfills;
     const misfilledMap = isSegment1 ? this.misfilledMap1 : this.misfilledMap2;
     const stackMap = isSegment1 ? this.stack1Map : this.stack2Map;
@@ -1245,12 +1250,10 @@ export class BoardView extends Container {
     const stackSlots = isSegment1 ? this.stack1Slots : this.stack2Slots;
     const stackContainer = isSegment1 ? this.stack1 : this.stack2;
 
-    // Helper: Check if gem is interactive (not already correctly placed)
     const isGemInteractive = (gem: Sprite | null): boolean => {
       return gem !== null && gem.eventMode !== 'none';
     };
 
-    // Helper: Extract color from texture filename
     const getGemColorFromTexture = (gem: Sprite): string | null => {
       if (!gem || !gem.texture) return null;
       const textureId = gem.texture.textureCacheIds?.[0] || '';
@@ -1258,7 +1261,6 @@ export class BoardView extends Container {
       return match ? match[1] : null;
     };
 
-    // Helper: Convert key to Point
     const keyToPoint = (key: string): Point => {
       const [x, y] = key.split(';').map(Number);
       const { height } = this.getBounds();
@@ -1266,20 +1268,14 @@ export class BoardView extends Container {
       return new Point(cx, cy);
     };
 
-    // Case 1: If we have chosenGems/activeColor
-    console.warn('11111', this.chosenGems.length, this.activeColor);
-
     if (this.chosenGems.length > 0 && this.activeColor) {
       const chosenColor = this.activeColor;
 
-      // Find empty cell that matches the chosen color
       for (const [key, value] of misfilledMap.entries()) {
         const gem = value.gem;
-        // Check if gem is in stack by comparing gem reference (stackMap now uses slot indices as keys)
         const gemInStack =
           gem !== null && Array.from(stackMap.values()).some((entry) => entry.gem === gem);
         const isEmpty = !gem || gemInStack || (gem && !isGemInteractive(gem));
-        // console.warn(isEmpty, value.correct, chosenColor);
 
         if (isEmpty && value.correct === chosenColor) {
           const cellPos = keyToPoint(key);
@@ -1287,27 +1283,20 @@ export class BoardView extends Container {
         }
       }
 
-      // If no empty cell found, return stack position twice
       if (stackSlots.length > 0) {
         const firstSlot = stackSlots[0];
         const stackPos = new Point(stackContainer.x + firstSlot.x, stackContainer.y + firstSlot.y);
-        // console.warn('****** 2');
         return [stackPos, stackPos];
       }
     }
 
-    // Case 2: If stack is empty
     if (!stackFilled) {
-      // Find incorrectly placed gem
       for (const [key, value] of misfilledMap.entries()) {
         const gem = value.gem;
         if (gem && isGemInteractive(gem)) {
           const gemColor = getGemColorFromTexture(gem);
           if (gemColor === value.wrong) {
-            // This gem is incorrectly placed
             const gemPos = keyToPoint(key);
-
-            // Find empty stack slot
             const gemsInStack = Array.from(stackMap.values()).filter(
               (entry) => entry.gem !== null && entry.gem !== undefined,
             ).length;
@@ -1319,14 +1308,12 @@ export class BoardView extends Container {
                 stackContainer.x + emptySlot.x,
                 stackContainer.y + emptySlot.y,
               );
-              // console.warn('****** 3');
               return [gemPos, stackPos];
             }
           }
         }
       }
 
-      // Check stackMap for incorrectly placed gems
       for (const [key, value] of stackMap.entries()) {
         const gem = value.gem;
         if (gem && isGemInteractive(gem)) {
@@ -1335,7 +1322,6 @@ export class BoardView extends Container {
           if (misfilled && gemColor === misfilled.wrong) {
             const gemPos = keyToPoint(key);
 
-            // Find empty stack slot
             const gemsInStack = Array.from(stackMap.values()).filter(
               (entry) => entry.gem !== null && entry.gem !== undefined,
             ).length;
@@ -1347,62 +1333,39 @@ export class BoardView extends Container {
                 stackContainer.x + emptySlot.x,
                 stackContainer.y + emptySlot.y,
               );
-              // console.warn('****** 4');
               return [gemPos, stackPos];
             }
           }
         }
       }
     } else {
-      // Case 3: Stack is filled
-      // Find empty cell
       for (const [key, value] of misfilledMap.entries()) {
         const gem = value.gem;
-        // Cell is empty if: gem is null OR gem is not interactive (already placed correctly)
-        // OR gem is in stack (check by comparing gem reference, not by key)
-        const gemInStack =
-          gem !== null && Array.from(stackMap.values()).some((entry) => entry.gem === gem);
-
         const isEmpty = !gem;
-        // const isEmpty = (gem && !isGemInteractive(gem));
-        // console.warn('gemInStack', !isGemInteractive(gem));
-
-        console.warn('KEEEY', key, isEmpty);
         if (isEmpty) {
           const neededColor = value.correct;
 
           const cellPos = keyToPoint(key);
 
-          // Find gem with needed color that's incorrectly placed or in stack
-          // First check stackMap - gems in stack are always available to be moved
-          // stackMap now uses slot index as key, so iterate through values
           for (const gemValue of stackMap.values()) {
             const stackGem = gemValue.gem;
             if (stackGem && isGemInteractive(stackGem)) {
               const gemColor = getGemColorFromTexture(stackGem);
-              // If gem has the needed color, it can be used
               if (gemColor === neededColor) {
-                // Use gem's current position (it's already in the stack)
                 const gemPos = new Point(stackGem.x, stackGem.y);
                 return [gemPos, cellPos];
               }
             }
           }
 
-          // Then check misfilledMap - find gem with needed color that's not correctly placed
           for (const [gemKey, gemValue] of misfilledMap.entries()) {
             const misfilledGem = gemValue.gem;
-            // Skip if this gem is already in the stack
             const isInStack =
               misfilledGem !== null &&
               Array.from(stackMap.values()).some((entry) => entry.gem === misfilledGem);
-            // console.warn(5, isGemInteractive(misfilledGem), gemKey);
             if (misfilledGem && isGemInteractive(misfilledGem) && !isInStack) {
-              // console.warn(6);
               const gemColor = getGemColorFromTexture(misfilledGem);
-              // Gem has the needed color AND is not already in the correct position
               if (gemColor === neededColor && gemColor !== gemValue.correct) {
-                // console.warn(7, gemKey, key);
                 const gemPos = keyToPoint(gemKey);
                 return [gemPos, cellPos];
               }
@@ -1412,18 +1375,12 @@ export class BoardView extends Container {
       }
     }
 
-    // Fallback: return default positions
-    console.warn('****** 7');
     return [new Point(0, 0), new Point(0, 0)];
   }
 
   private showHint(): void {
     let currentPointIndex = 0;
     const points = this.getHintPositions();
-    // console.warn(points);
-    // points.forEach((point) => {
-    //   drawPoint(this.boardRoot, point.x, point.y, CELL_SIZE);
-    // });
 
     if (points.length === 0) return;
 
@@ -1475,7 +1432,6 @@ export class BoardView extends Container {
   }
 
   private startHintTimer(): void {
-    console.warn('startHintTimer');
     anime({
       targets: timer,
       value: 1,
@@ -1493,8 +1449,6 @@ export class BoardView extends Container {
   }
 
   private restartHint(): void {
-    console.warn('restartHint');
-
     this.hideHint();
     this.stopHintTimer();
     this.startHintTimer();
