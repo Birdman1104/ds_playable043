@@ -182,6 +182,7 @@ export class BoardView extends Container {
     this.boardRoot.addChild(this.misfilledLayer1);
     this.boardRoot.addChild(this.misfilledLayer2);
     this.boardRoot.addChild(this.hand);
+    this.hand.alpha = 0;
 
     this.addChild(this.congratsText);
     this.congratsText.position.set(CONGRATS_TEXT_X, CONGRATS_TEXT_Y);
