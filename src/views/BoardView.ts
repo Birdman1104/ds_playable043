@@ -1,8 +1,9 @@
 import { lego } from '@armathai/lego';
 import { Texture } from '@pixi/core';
 import { Container } from '@pixi/display';
-import { Rectangle } from '@pixi/math';
+import { Point, Rectangle } from '@pixi/math';
 import { Sprite } from '@pixi/sprite';
+import { Text } from '@pixi/text';
 import anime from 'animejs';
 import {
   LEVEL_CONFIG,
@@ -21,6 +22,7 @@ import {
   MISFILLED8,
   MISFILLED9,
 } from '../configs/LevelConfig';
+import { getHandSpriteConfig } from '../configs/SpriteConfig';
 import { MainGameEvents } from '../lego/events/MainEvents';
 import { delayRunnable, makeSprite } from '../utils/Utils';
 
@@ -31,6 +33,8 @@ const CELL_COUNT_Y = 56;
 const INIT_DELAY = 0.1;
 const ZOOM_DURATION = 1000;
 const ZOOM_SCALE = 2.2;
+
+const HINT_DELAY = 3;
 
 const gemsConfig: Record<string, string> = {
   '11': 'black',
@@ -43,6 +47,10 @@ const gemsConfig: Record<string, string> = {
 
 const getGemColor = (id: number): string => {
   return gemsConfig[id.toString()] || 'yellow';
+};
+
+const timer = {
+  value: 0,
 };
 
 export class BoardView extends Container {
@@ -120,6 +128,9 @@ export class BoardView extends Container {
 
   private animationInProgress = false;
 
+  private hand: Sprite = makeSprite(getHandSpriteConfig());
+  private hintTimer: any = null;
+
   constructor() {
     super();
 
@@ -138,6 +149,7 @@ export class BoardView extends Container {
     this.misfilledLayer2.addChild(this.misfilledLayer2Gems);
     this.boardRoot.addChild(this.misfilledLayer1);
     this.boardRoot.addChild(this.misfilledLayer2);
+    this.boardRoot.addChild(this.hand);
 
     this.drawBoard();
     this.buildStack1();
@@ -217,8 +229,6 @@ export class BoardView extends Container {
       }
     }
 
-    console.warn(this.stack1.width, this.stack1.height);
-
     this.stack1.alpha = 0;
     this.stack1Overlay.alpha = 0;
   }
@@ -275,6 +285,7 @@ export class BoardView extends Container {
 
   private onStack1Click(): void {
     if (!this.activeColor || this.animationInProgress || this.stack1Filled) return;
+    this.restartHint();
     anime.remove(this.stack1Overlay);
     this.stack1Overlay.alpha = 0;
     this.moveGemsToStack1();
@@ -282,6 +293,7 @@ export class BoardView extends Container {
 
   private onStack2Click(): void {
     if (!this.activeColor || this.animationInProgress || this.stack2Filled) return;
+    this.restartHint();
     anime.remove(this.stack2Overlay);
     this.stack2Overlay.alpha = 0;
     this.moveGemsToStack2();
@@ -289,6 +301,8 @@ export class BoardView extends Container {
 
   private moveGemsToStack1(): void {
     this.animationInProgress = true;
+
+    console.warn('***** THIS STACK IS FILLED');
     this.stack1Filled = true;
     this.activeColor = '';
     this.stack1Slots.forEach((s, i) => {
@@ -305,16 +319,17 @@ export class BoardView extends Container {
         complete: () => {
           gem.scale.set(1, 1);
           if (i === this.chosenGems.length - 1) {
-            this.chosenGems.forEach((gem) => {
+            this.chosenGems.forEach((gem, i) => {
               this.misfilledMap1.forEach((m, k) => {
                 if (m.gem === gem) {
-                  this.stack1Map.set(k, { gem: gem as Sprite });
+                  this.stack1Map.set(i.toString(), { gem: gem as Sprite });
                   this.misfilledMap1.set(k, {
                     background: m.background,
                     wrong: m.wrong,
                     correct: m.correct,
                     gem: null,
                   });
+                  console.log(k, this.misfilledMap1.get(k));
                 }
               });
             });
@@ -461,6 +476,7 @@ export class BoardView extends Container {
           x: cx,
           y: cy,
         });
+
         this.misfilledLayer1Background.addChild(empty);
         const gem = makeSprite({
           frame: `gem_${slot?.color ?? 'black'}.png`,
@@ -477,7 +493,7 @@ export class BoardView extends Container {
           y: cy,
         });
         empty.eventMode = 'static';
-        empty.on('pointerdown', () => this.onMisfilled1EmptyClick(x, y, misfilled.correct));
+        empty.on('pointerdown', () => this.onMisfilled1EmptyClick(empty, misfilled.correct));
         this.misfilledLayer1Background.addChild(empty);
 
         const gem = makeSprite({
@@ -487,7 +503,7 @@ export class BoardView extends Container {
           y: cy,
         });
         gem.eventMode = 'static';
-        gem.on('pointerdown', () => this.onMisfilled1GemClick(x, y, misfilled.wrong));
+        gem.on('pointerdown', () => this.onMisfilled1GemClick(gem, misfilled.wrong));
         this.misfilledLayer1Gems.addChild(gem);
 
         this.misfilledMap1.set(key, {
@@ -497,6 +513,11 @@ export class BoardView extends Container {
           gem: gem,
         });
       }
+
+      const text = new Text(key, { fontSize: 50, fontWeight: 'bold', fill: '#000000' });
+      text.x = cx - 60;
+      text.y = cy;
+      this.misfilledLayer1.addChild(text);
     }
 
     const gemsGroup11 = MISFILLED1.map((position) => {
@@ -632,7 +653,7 @@ export class BoardView extends Container {
           y: cy,
         });
         gem.eventMode = 'static';
-        gem.on('pointerdown', () => this.onMisfilled2GemClick(x, y, misfilled.wrong));
+        gem.on('pointerdown', () => this.onMisfilled2GemClick(gem, misfilled.wrong));
         this.misfilledLayer2Gems.addChild(gem);
 
         this.misfilledMap2.set(key, {
@@ -722,14 +743,14 @@ export class BoardView extends Container {
     this.cellsGroup27 = cellsGroup27;
   }
 
-  private onMisfilled1GemClick(x: number, y: number, color: string): void {
+  private onMisfilled1GemClick(gemo: Sprite, color: string): void {
     if (this.animationInProgress) return;
-    const key = this.getKey(x, y);
-    const gemo = this.misfilledMap1.get(key)?.gem || this.stack1Map.get(key)?.gem || null;
 
     if (this.chosenGems.find((gem) => gem === gemo)) {
       return;
     }
+
+    this.restartHint();
 
     if (this.firstFromFirst) {
       this.firstFromFirst = false;
@@ -808,14 +829,13 @@ export class BoardView extends Container {
     });
   }
 
-  private onMisfilled2GemClick(x: number, y: number, color: string): void {
+  private onMisfilled2GemClick(gemo: Sprite, color: string): void {
     if (this.animationInProgress) return;
-    const key = this.getKey(x, y);
-    const gemo = this.misfilledMap2.get(key)?.gem || this.stack2Map.get(key)?.gem || null;
-
     if (this.chosenGems.find((gem) => gem === gemo)) {
       return;
     }
+
+    this.restartHint();
 
     if (this.firstFromFirst) {
       this.firstFromFirst = false;
@@ -852,11 +872,10 @@ export class BoardView extends Container {
     }
   }
 
-  private onMisfilled1EmptyClick(x: number, y: number, correctColor: string): void {
+  private onMisfilled1EmptyClick(cell: Sprite, correctColor: string): void {
     if (!this.activeColor || this.animationInProgress) return;
+    this.restartHint();
 
-    const cellKey = this.getKey(x, y);
-    const cell = this.misfilledMap1.get(cellKey)?.background;
     const cellsGroup = [
       this.cellsGroup11,
       this.cellsGroup12,
@@ -884,6 +903,25 @@ export class BoardView extends Container {
           delay: i * 10,
           easing: 'easeInOutSine',
           complete: () => {
+            this.misfilledMap1.forEach((m, k) => {
+              if (m.gem === gem) {
+                this.misfilledMap1.set(k, {
+                  background: m.background,
+                  wrong: m.wrong,
+                  correct: m.correct,
+                  gem: null,
+                });
+                console.warn(this.misfilledMap1.get(k), k);
+              }
+            });
+            this.stack1Map.forEach((m, k) => {
+              if (m.gem === gem) {
+                console.warn('DELET FROM STACK1 MAP');
+                this.stack1Map.delete(k);
+
+                this.stack1Filled = false;
+              }
+            });
             gem.scale.set(1, 1);
             if (activeColorCopy === correctColor) {
               gem.texture = Texture.from(`gem_${correctColor}.png`);
@@ -892,28 +930,48 @@ export class BoardView extends Container {
             }
 
             if (i === this.chosenGems.length - 1) {
+              // Store chosenGems before clearing, so we can check if they came from stack1
+              const placedGems = [...this.chosenGems];
+
               this.misfilledMap1.forEach((m, k) => {
-                if (m.background === cell) {
+                // check if the background is one of teh cellsGroup
+                if (cellsGroup.find((c) => c === m.background)) {
                   this.misfilledMap1.set(k, {
                     background: m.background,
                     wrong: m.wrong,
                     correct: m.correct,
                     gem: this.chosenGems[this.chosenGems.length - i - 1],
                   });
+
+                  console.warn(k, this.misfilledMap1.get(k));
                 }
               });
+
+              // Check if any gems were moved from stack1 and clean up stack1Map
+              let gemsFromStack1 = false;
+              this.stack1Map.forEach((m, k) => {
+                // Check if this gem from stack1 was in the placedGems array
+                if (m.gem && placedGems.includes(m.gem)) {
+                  this.stack1Map.delete(k);
+                  gemsFromStack1 = true;
+                }
+              });
+
+              // If gems were moved from stack1 and stack is now empty, mark it as not filled
+              if (gemsFromStack1 && this.stack1Map.size === 0) {
+                console.warn('***** THIS STACK IS EMPTY');
+
+                this.stack1Filled = false;
+              }
+
               this.chosenGems = [];
               this.animationInProgress = false;
-              this.stack1Map.forEach((m, k) => {
-                if (m.gem === gem) {
-                  this.stack1Map.delete(k);
-                }
-              });
-              this.stack1Filled = false;
 
               if (correctColor === activeColorCopy) {
                 this.correctCounter++;
                 if (this.correctCounter === this.misfills) {
+                  this.stopHintTimer();
+                  this.hideHint();
                   this.zoomOut().then(() => {
                     anime({
                       targets: [this.misfilledLayer1, this.stack1],
@@ -926,9 +984,7 @@ export class BoardView extends Container {
                       alpha: 1,
                       duration: ZOOM_DURATION / 2,
                       easing: 'easeInOutQuad',
-                      complete: () => {
-                        this.zoomIntoSegment2();
-                      },
+                      complete: () => this.zoomIntoSegment2(),
                     });
                   });
                 }
@@ -942,7 +998,7 @@ export class BoardView extends Container {
 
   private onMisfilled2EmptyClick(x: number, y: number, correctColor: string): void {
     if (!this.activeColor || this.animationInProgress) return;
-
+    this.restartHint();
     const cellKey = this.getKey(x, y);
     const cell = this.misfilledMap2.get(cellKey)?.background;
     const cellsGroup = [
@@ -999,6 +1055,8 @@ export class BoardView extends Container {
               this.stack2Filled = false;
 
               if (correctColor === activeColorCopy) {
+                this.stopHintTimer();
+                this.hideHint();
                 this.correctCounter++;
                 if (this.correctCounter === this.misfills * 2) {
                   this.zoomOut().then(() => {
@@ -1089,6 +1147,7 @@ export class BoardView extends Container {
         this.boardRoot.scale.set(animTarget.scaleX, animTarget.scaleY);
         this.boardRoot.position.set(animTarget.x, animTarget.y);
       },
+      complete: () => this.startHintTimer(),
     });
 
     anime({
@@ -1133,6 +1192,7 @@ export class BoardView extends Container {
         this.boardRoot.scale.set(animTarget.scaleX, animTarget.scaleY);
         this.boardRoot.position.set(animTarget.x, animTarget.y);
       },
+      complete: () => this.startHintTimer(),
     });
 
     anime({
@@ -1174,5 +1234,269 @@ export class BoardView extends Container {
         complete: () => resolve(),
       });
     });
+  }
+
+  private getHintPositions(): Point[] {
+    // Determine which segment is active
+    const isSegment1 = this.correctCounter < this.misfills;
+    const misfilledMap = isSegment1 ? this.misfilledMap1 : this.misfilledMap2;
+    const stackMap = isSegment1 ? this.stack1Map : this.stack2Map;
+    const stackFilled = isSegment1 ? this.stack1Filled : this.stack2Filled;
+    const stackSlots = isSegment1 ? this.stack1Slots : this.stack2Slots;
+    const stackContainer = isSegment1 ? this.stack1 : this.stack2;
+
+    // Helper: Check if gem is interactive (not already correctly placed)
+    const isGemInteractive = (gem: Sprite | null): boolean => {
+      return gem !== null && gem.eventMode !== 'none';
+    };
+
+    // Helper: Extract color from texture filename
+    const getGemColorFromTexture = (gem: Sprite): string | null => {
+      if (!gem || !gem.texture) return null;
+      const textureId = gem.texture.textureCacheIds?.[0] || '';
+      const match = textureId.match(/gem_([^_]+)(?:_wrong)?\.png/);
+      return match ? match[1] : null;
+    };
+
+    // Helper: Convert key to Point
+    const keyToPoint = (key: string): Point => {
+      const [x, y] = key.split(';').map(Number);
+      const { height } = this.getBounds();
+      const { cx, cy } = this.getCellCenter(x, y, height);
+      return new Point(cx, cy);
+    };
+
+    // Case 1: If we have chosenGems/activeColor
+    console.warn('11111', this.chosenGems.length, this.activeColor);
+
+    if (this.chosenGems.length > 0 && this.activeColor) {
+      const chosenColor = this.activeColor;
+
+      // Find empty cell that matches the chosen color
+      for (const [key, value] of misfilledMap.entries()) {
+        const gem = value.gem;
+        // Check if gem is in stack by comparing gem reference (stackMap now uses slot indices as keys)
+        const gemInStack =
+          gem !== null && Array.from(stackMap.values()).some((entry) => entry.gem === gem);
+        const isEmpty = !gem || gemInStack || (gem && !isGemInteractive(gem));
+        // console.warn(isEmpty, value.correct, chosenColor);
+
+        if (isEmpty && value.correct === chosenColor) {
+          const cellPos = keyToPoint(key);
+          return [cellPos, cellPos];
+        }
+      }
+
+      // If no empty cell found, return stack position twice
+      if (stackSlots.length > 0) {
+        const firstSlot = stackSlots[0];
+        const stackPos = new Point(stackContainer.x + firstSlot.x, stackContainer.y + firstSlot.y);
+        // console.warn('****** 2');
+        return [stackPos, stackPos];
+      }
+    }
+
+    // Case 2: If stack is empty
+    if (!stackFilled) {
+      // Find incorrectly placed gem
+      for (const [key, value] of misfilledMap.entries()) {
+        const gem = value.gem;
+        if (gem && isGemInteractive(gem)) {
+          const gemColor = getGemColorFromTexture(gem);
+          if (gemColor === value.wrong) {
+            // This gem is incorrectly placed
+            const gemPos = keyToPoint(key);
+
+            // Find empty stack slot
+            const gemsInStack = Array.from(stackMap.values()).filter(
+              (entry) => entry.gem !== null && entry.gem !== undefined,
+            ).length;
+            const emptySlotIndex = stackSlots.length - gemsInStack - 1;
+
+            if (emptySlotIndex >= 0 && emptySlotIndex < stackSlots.length) {
+              const emptySlot = stackSlots[emptySlotIndex];
+              const stackPos = new Point(
+                stackContainer.x + emptySlot.x,
+                stackContainer.y + emptySlot.y,
+              );
+              // console.warn('****** 3');
+              return [gemPos, stackPos];
+            }
+          }
+        }
+      }
+
+      // Check stackMap for incorrectly placed gems
+      for (const [key, value] of stackMap.entries()) {
+        const gem = value.gem;
+        if (gem && isGemInteractive(gem)) {
+          const gemColor = getGemColorFromTexture(gem);
+          const misfilled = misfilledMap.get(key);
+          if (misfilled && gemColor === misfilled.wrong) {
+            const gemPos = keyToPoint(key);
+
+            // Find empty stack slot
+            const gemsInStack = Array.from(stackMap.values()).filter(
+              (entry) => entry.gem !== null && entry.gem !== undefined,
+            ).length;
+            const emptySlotIndex = stackSlots.length - gemsInStack - 1;
+
+            if (emptySlotIndex >= 0 && emptySlotIndex < stackSlots.length) {
+              const emptySlot = stackSlots[emptySlotIndex];
+              const stackPos = new Point(
+                stackContainer.x + emptySlot.x,
+                stackContainer.y + emptySlot.y,
+              );
+              // console.warn('****** 4');
+              return [gemPos, stackPos];
+            }
+          }
+        }
+      }
+    } else {
+      // Case 3: Stack is filled
+      // Find empty cell
+      for (const [key, value] of misfilledMap.entries()) {
+        const gem = value.gem;
+        // Cell is empty if: gem is null OR gem is not interactive (already placed correctly)
+        // OR gem is in stack (check by comparing gem reference, not by key)
+        const gemInStack =
+          gem !== null && Array.from(stackMap.values()).some((entry) => entry.gem === gem);
+
+        const isEmpty = !gem;
+        // const isEmpty = (gem && !isGemInteractive(gem));
+        // console.warn('gemInStack', !isGemInteractive(gem));
+
+        console.warn('KEEEY', key, isEmpty);
+        if (isEmpty) {
+          const neededColor = value.correct;
+
+          const cellPos = keyToPoint(key);
+
+          // Find gem with needed color that's incorrectly placed or in stack
+          // First check stackMap - gems in stack are always available to be moved
+          // stackMap now uses slot index as key, so iterate through values
+          for (const gemValue of stackMap.values()) {
+            const stackGem = gemValue.gem;
+            if (stackGem && isGemInteractive(stackGem)) {
+              const gemColor = getGemColorFromTexture(stackGem);
+              // If gem has the needed color, it can be used
+              if (gemColor === neededColor) {
+                // Use gem's current position (it's already in the stack)
+                const gemPos = new Point(stackGem.x, stackGem.y);
+                return [gemPos, cellPos];
+              }
+            }
+          }
+
+          // Then check misfilledMap - find gem with needed color that's not correctly placed
+          for (const [gemKey, gemValue] of misfilledMap.entries()) {
+            const misfilledGem = gemValue.gem;
+            // Skip if this gem is already in the stack
+            const isInStack =
+              misfilledGem !== null &&
+              Array.from(stackMap.values()).some((entry) => entry.gem === misfilledGem);
+            // console.warn(5, isGemInteractive(misfilledGem), gemKey);
+            if (misfilledGem && isGemInteractive(misfilledGem) && !isInStack) {
+              // console.warn(6);
+              const gemColor = getGemColorFromTexture(misfilledGem);
+              // Gem has the needed color AND is not already in the correct position
+              if (gemColor === neededColor && gemColor !== gemValue.correct) {
+                // console.warn(7, gemKey, key);
+                const gemPos = keyToPoint(gemKey);
+                return [gemPos, cellPos];
+              }
+            }
+          }
+        }
+      }
+    }
+
+    // Fallback: return default positions
+    console.warn('****** 7');
+    return [new Point(0, 0), new Point(0, 0)];
+  }
+
+  private showHint(): void {
+    let currentPointIndex = 0;
+    const points = this.getHintPositions();
+    // console.warn(points);
+    // points.forEach((point) => {
+    //   drawPoint(this.boardRoot, point.x, point.y, CELL_SIZE);
+    // });
+
+    if (points.length === 0) return;
+
+    const showFirstTime = (): void => {
+      const point = points[currentPointIndex];
+      this.hand.alpha = 1;
+      this.hand.position.set(point.x, point.y);
+      this.hand.angle = 0;
+      this.hand.visible = true;
+
+      pointHand();
+    };
+
+    const pointHand = (): void => {
+      anime({
+        targets: this.hand.scale,
+        x: 0.8,
+        y: 0.8,
+        duration: 500,
+        easing: 'easeInOutCubic',
+        direction: 'alternate',
+        complete: () => {
+          currentPointIndex = (currentPointIndex + 1) % points.length;
+          moveHand(points[currentPointIndex]);
+        },
+      });
+    };
+
+    const moveHand = (pos: Point): void => {
+      anime({
+        targets: this.hand,
+        x: pos.x,
+        y: pos.y,
+        duration: 500,
+        easing: 'easeInOutCubic',
+        complete: () => pointHand(),
+      });
+    };
+
+    showFirstTime();
+  }
+
+  private hideHint(): void {
+    anime.remove(this.hand);
+    anime.remove(this.hand.scale);
+    this.hand.scale.set(1, 1);
+    this.hand.visible = false;
+    this.hand.alpha = 0;
+  }
+
+  private startHintTimer(): void {
+    console.warn('startHintTimer');
+    anime({
+      targets: timer,
+      value: 1,
+      duration: HINT_DELAY * 1000,
+      easing: 'easeInOutQuad',
+      complete: () => {
+        this.showHint();
+      },
+    });
+  }
+
+  private stopHintTimer(): void {
+    anime.remove(timer);
+    timer.value = 0;
+  }
+
+  private restartHint(): void {
+    console.warn('restartHint');
+
+    this.hideHint();
+    this.stopHintTimer();
+    this.startHintTimer();
   }
 }

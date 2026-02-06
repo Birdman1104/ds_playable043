@@ -1,13 +1,10 @@
 import { Point } from '@pixi/math';
 
-export const getChestRaysSpriteConfig = (): SpriteConfig => {
+export const getHandSpriteConfig = (): SpriteConfig => {
   return {
-    atlas: 'loots',
-    frame: `rays.png`,
-    scaleX: 0.001,
-    scaleY: 0.001,
-    alpha: 0,
-    anchor: new Point(0.5, 0.5),
+    atlas: 'game',
+    frame: `hand.png`,
+    anchor: new Point(0.06, 0.05),
   };
 };
 export const getLogoSpriteConfig = (

@@ -95,6 +95,30 @@
         "x": 0.5,
         "y": 0.5
       }
+    },
+    "hand.png": {
+      "frame": {
+        "x": 951,
+        "y": 376,
+        "w": 360,
+        "h": 445
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 360,
+        "h": 445
+      },
+      "sourceSize": {
+        "w": 360,
+        "h": 445
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
     }
   },
   "meta": {

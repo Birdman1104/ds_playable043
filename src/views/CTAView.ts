@@ -28,6 +28,7 @@ export class CTAView extends PixiGrid {
     this.logoWrapper.addChild(this.logo);
     this.buttonWrapper.addChild(this.button);
     this.button.alpha = 0;
+    this.logo.alpha = 0;
     this.logo.scale.set(0.01);
     this.button.scale.set(2);
   }
