@@ -6,7 +6,8 @@ import { SoundModelEvents } from 'lego/events/ModelEvents';
 import { SoundState } from 'models/SoundModel';
 
 const VOLUMES = {
-  loot: 0.5,
+  theme: 1.2,
+  bell: 0.4,
 };
 
 const MAX_CONCURRENT_SOUNDS = 4;
@@ -21,6 +22,9 @@ class SoundControl {
     this.sounds = {};
 
     lego.event
+      .on('muteSound', this.focusChange, this)
+      .on(SoundEvents.Mute, this.mute, this)
+      .on(SoundEvents.Unmute, this.unmute, this)
       .on(MainGameEvents.MuteUpdate, this.focusChange, this)
       .on(SoundEvents.Click, this.playClick, this)
       .on(SoundEvents.Theme, this.playTheme, this)
@@ -37,8 +41,6 @@ class SoundControl {
         loop: name === 'theme',
       });
     });
-
-    console.warn(this.sounds);
   }
 
   private playClick(): void {

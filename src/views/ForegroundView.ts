@@ -1,18 +1,21 @@
 import { lego } from '@armathai/lego';
+import { Texture } from '@pixi/core';
 import { Container } from '@pixi/display';
 import { Sprite } from '@pixi/sprite';
 import anime from 'animejs';
-import { GameModelEvents } from 'lego/events/ModelEvents';
+import { AdModelEvents, GameModelEvents, SoundModelEvents } from 'lego/events/ModelEvents';
 import { PixiGrid } from 'libs/grid';
 import { GameState } from 'models/GameModel';
 import { getForegroundGridConfig } from '../configs/gridConfigs/ForegroundViewGC';
 import { getLogoSpriteConfig } from '../configs/SpriteConfig';
-import { CTAEvents } from '../lego/events/MainEvents';
+import { CTAEvents, SoundEvents } from '../lego/events/MainEvents';
+import { SoundModel, SoundState } from '../models/SoundModel';
 import { makeSprite } from '../utils/Utils';
 
 class Logo extends Container {
   private logo1: Sprite | null = null;
   private logo2: Sprite | null = null;
+
   constructor() {
     super();
 
@@ -38,13 +41,41 @@ class Logo extends Container {
     });
   }
 }
-export class ForegroundView extends PixiGrid {
-  private logo: Logo = new Logo();
+
+class Sound extends Container {
+  private isMuted = false;
+  private icon: Sprite = makeSprite({ frame: 'sound_on.png', atlas: 'game' });
 
   constructor() {
     super();
 
-    lego.event.on(GameModelEvents.StateUpdate, this.onGameStateUpdate, this);
+    this.build();
+  }
+
+  private build(): void {
+    this.icon.interactive = true;
+    this.icon.on('pointerdown', this.onPointerDown, this);
+    this.addChild(this.icon);
+  }
+
+  private onPointerDown(): void {
+    lego.event.emit(this.isMuted ? SoundEvents.Unmute : SoundEvents.Mute);
+    this.isMuted = !this.isMuted;
+    this.icon.texture = Texture.from(`sound_${this.isMuted ? 'off' : 'on'}.png`);
+  }
+}
+
+export class ForegroundView extends PixiGrid {
+  private logo: Logo = new Logo();
+  private sound: Sound = new Sound();
+
+  constructor() {
+    super();
+
+    lego.event
+      .on(GameModelEvents.StateUpdate, this.onGameStateUpdate, this)
+      .on(AdModelEvents.SoundUpdate, this.onSoundUpdate, this)
+      .on(SoundModelEvents.StateUpdate, this.onSoundStateUpdate, this);
 
     this.build();
   }
@@ -71,5 +102,15 @@ export class ForegroundView extends PixiGrid {
         easing: 'easeInOutSine',
       });
     }
+  }
+
+  private onSoundUpdate(sound: SoundModel): void {
+    if (sound) {
+      this.attach('sound', this.sound);
+    }
+  }
+
+  private onSoundStateUpdate(soundState: SoundState): void {
+    // this.sound.mutedUpdate(soundState === SoundState.Off);
   }
 }

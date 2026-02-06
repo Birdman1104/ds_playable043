@@ -119,6 +119,54 @@
         "x": 0.5,
         "y": 0.5
       }
+    },
+    "sound_on.png": {
+      "frame": {
+        "x": 618,
+        "y": 376,
+        "w": 47,
+        "h": 41
+      },
+      "rotated": true,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 5,
+        "y": 4,
+        "w": 47,
+        "h": 41
+      },
+      "sourceSize": {
+        "w": 55,
+        "h": 46
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    "sound_off.png": {
+      "frame": {
+        "x": 618,
+        "y": 429,
+        "w": 41,
+        "h": 41
+      },
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {
+        "x": 3,
+        "y": 4,
+        "w": 41,
+        "h": 41
+      },
+      "sourceSize": {
+        "w": 55,
+        "h": 46
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
     }
   },
   "meta": {

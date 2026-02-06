@@ -34,7 +34,7 @@ export class SoundModel extends ObservableModel {
   }
 
   public initialize(): void {
-    this._state = SoundState.On;
+    this._state = SoundState.Off;
   }
 
   public toggle(): void {
