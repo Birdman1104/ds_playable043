@@ -22,8 +22,8 @@ class Wrapper extends Container {
   constructor() {
     super();
 
-    this.wrapper1.position.set(0, 0);
-    this.wrapper2.position.set(this.width, 0);
+    this.wrapper1.position.set(0, this.height * 0.8);
+    this.wrapper2.position.set(this.width, this.height * 0.8);
     this.wrapper2.scale.set(-1, 1);
 
     this.addChild(this.wrapper1);

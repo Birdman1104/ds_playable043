@@ -159,6 +159,8 @@ export class BoardView extends Container {
 
   private congratsText: Sprite = makeSprite(getCongratsSpriteConfig(TEXT_ORDER[currentTextIndex]));
 
+  private canClick = false;
+
   constructor() {
     super();
 
@@ -175,8 +177,8 @@ export class BoardView extends Container {
     this.misfilledLayer1.addChild(this.misfilledLayer1StaticGems);
     this.misfilledLayer1.addChild(this.misfilledLayer1Gems);
     this.misfilledLayer2.addChild(this.misfilledLayer2Background);
-    this.misfilledLayer2.addChild(this.misfilledLayer2Gems);
     this.misfilledLayer2.addChild(this.misfilledLayer2StaticGems);
+    this.misfilledLayer2.addChild(this.misfilledLayer2Gems);
     this.boardRoot.addChild(this.misfilledLayer1);
     this.boardRoot.addChild(this.misfilledLayer2);
     this.boardRoot.addChild(this.hand);
@@ -268,7 +270,7 @@ export class BoardView extends Container {
           y: slotY,
         });
         empty.eventMode = 'static';
-        empty.on('pointerdown', () => this.onStack1Click());
+        empty.on('pointerdown', () => this.canClick && this.onStack1Click());
         this.stack1.addChild(empty);
 
         const emptyOverlay = makeSprite({
@@ -318,7 +320,7 @@ export class BoardView extends Container {
           y: slotY,
         });
         empty.eventMode = 'static';
-        empty.on('pointerdown', () => this.onStack2Click());
+        empty.on('pointerdown', () => this.canClick && this.onStack2Click());
         this.stack2.addChild(empty);
 
         const emptyOverlay = makeSprite({
@@ -548,7 +550,10 @@ export class BoardView extends Container {
           y: cy,
         });
         empty.eventMode = 'static';
-        empty.on('pointerdown', () => this.onMisfilled1EmptyClick(empty, misfilled.correct));
+        empty.on(
+          'pointerdown',
+          () => this.canClick && this.onMisfilled1EmptyClick(empty, misfilled.correct),
+        );
         this.misfilledLayer1Background.addChild(empty);
 
         const gem = makeSprite({
@@ -558,7 +563,10 @@ export class BoardView extends Container {
           y: cy,
         });
         gem.eventMode = 'static';
-        gem.on('pointerdown', () => this.onMisfilled1GemClick(gem, misfilled.wrong));
+        gem.on(
+          'pointerdown',
+          () => this.canClick && this.onMisfilled1GemClick(gem, misfilled.wrong),
+        );
         this.misfilledLayer1Gems.addChild(gem);
 
         this.misfilledMap1.set(key, {
@@ -693,7 +701,10 @@ export class BoardView extends Container {
           y: cy,
         });
         empty.eventMode = 'static';
-        empty.on('pointerdown', () => this.onMisfilled2EmptyClick(empty, misfilled.correct));
+        empty.on(
+          'pointerdown',
+          () => this.canClick && this.onMisfilled2EmptyClick(empty, misfilled.correct),
+        );
         this.misfilledLayer2Background.addChild(empty);
 
         const gem = makeSprite({
@@ -703,7 +714,10 @@ export class BoardView extends Container {
           y: cy,
         });
         gem.eventMode = 'static';
-        gem.on('pointerdown', () => this.onMisfilled2GemClick(gem, misfilled.wrong));
+        gem.on(
+          'pointerdown',
+          () => this.canClick && this.onMisfilled2GemClick(gem, misfilled.wrong),
+        );
         this.misfilledLayer2Gems.addChild(gem);
 
         this.misfilledMap2.set(key, {
@@ -1218,7 +1232,10 @@ export class BoardView extends Container {
         this.boardRoot.scale.set(animTarget.scaleX, animTarget.scaleY);
         this.boardRoot.position.set(animTarget.x, animTarget.y);
       },
-      complete: () => this.startHintTimer(),
+      complete: () => {
+        this.canClick = true;
+        this.startHintTimer();
+      },
     });
 
     anime({
@@ -1263,7 +1280,10 @@ export class BoardView extends Container {
         this.boardRoot.scale.set(animTarget.scaleX, animTarget.scaleY);
         this.boardRoot.position.set(animTarget.x, animTarget.y);
       },
-      complete: () => this.startHintTimer(),
+      complete: () => {
+        this.canClick = true;
+        this.startHintTimer();
+      },
     });
 
     anime({
@@ -1282,6 +1302,7 @@ export class BoardView extends Container {
   }
 
   private zoomOut(): Promise<void> {
+    this.canClick = false;
     const animTarget = {
       scaleX: this.boardRoot.scale.x,
       scaleY: this.boardRoot.scale.y,
@@ -1531,10 +1552,11 @@ export class BoardView extends Container {
   }
 
   private jumpText(): void {
+    this.canClick = false;
     anime({
       targets: this.congratsText,
       y: 4000,
-      duration: 1400,
+      duration: 1200,
       easing: 'easeOutBounce',
       complete: () => {
         currentTextIndex = (currentTextIndex + 1) % TEXT_ORDER.length;
@@ -1545,6 +1567,7 @@ export class BoardView extends Container {
           duration: 200,
           easing: 'easeInOutQuad',
           complete: () => {
+            this.canClick = true;
             this.congratsText.alpha = 0;
             this.congratsText.scale.set(0.01);
             this.congratsText.position.set(CONGRATS_TEXT_X, CONGRATS_TEXT_Y);
@@ -1558,14 +1581,14 @@ export class BoardView extends Container {
     anime({
       targets: this.congratsText,
       alpha: 1,
-      duration: 1000,
+      duration: 900,
       easing: 'easeInOutQuad',
     });
     anime({
       targets: this.congratsText.scale,
       x: 10,
       y: 10,
-      duration: 1000,
+      duration: 900,
       easing: 'easeInOutSine',
     });
   }

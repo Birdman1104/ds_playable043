@@ -6,7 +6,7 @@ export const PARTICLE_CONFIG = {
     max: 10,
   },
   frequency: 0.1,
-  emitterLifetime: 20,
+  emitterLifetime: 2,
   maxParticles: 100,
   addAtBack: true,
   pos: {
@@ -39,11 +39,11 @@ export const PARTICLE_CONFIG = {
           list: [
             {
               time: 0,
-              value: 300,
+              value: 400,
             },
             {
               time: 1,
-              value: 330,
+              value: 430,
             },
           ],
         },
@@ -56,11 +56,11 @@ export const PARTICLE_CONFIG = {
           list: [
             {
               time: 0,
-              value: 0.4,
+              value: 0.5,
             },
             {
               time: 1,
-              value: 0.6,
+              value: 0.05,
             },
           ],
         },
@@ -87,8 +87,8 @@ export const PARTICLE_CONFIG = {
     {
       type: 'rotationStatic',
       config: {
-        min: -265,
-        max: -332,
+        min: 265,
+        max: 332,
       },
     },
     {

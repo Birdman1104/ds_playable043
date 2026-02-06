@@ -1,6 +1,7 @@
 import { lego } from '@armathai/lego';
 import { Container } from '@pixi/display';
 import { Graphics } from '@pixi/graphics';
+import { Rectangle } from '@pixi/math';
 import { Sprite } from '@pixi/sprite';
 import anime from 'animejs';
 import { PixiGrid } from 'libs/grid';
@@ -25,12 +26,18 @@ export class CTAView extends PixiGrid {
     this.buildBlocker();
     this.attach('logo', this.logoWrapper);
     this.attach('button', this.buttonWrapper);
+    this.logoWrapper.getBounds = () => new Rectangle(0, 0, 450, 250);
+    this.buttonWrapper.getBounds = () => new Rectangle(0, 0, 305, 105);
     this.logoWrapper.addChild(this.logo);
     this.buttonWrapper.addChild(this.button);
     this.button.alpha = 0;
     this.logo.alpha = 0;
+    this.logo.position.set(this.logoWrapper.width / 2, this.logoWrapper.height / 2);
+    this.button.position.set(this.buttonWrapper.width / 2, this.buttonWrapper.height / 2);
     this.logo.scale.set(0.01);
     this.button.scale.set(2);
+
+    this.rebuild();
   }
 
   public getGridConfig(): ICellConfig {

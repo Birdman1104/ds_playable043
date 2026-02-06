@@ -19,11 +19,11 @@ const getCTAGridLandscapeConfig = () => {
     cells: [
       {
         name: 'logo',
-        bounds: { x: 0.15, y: 0, width: 0.7, height: 0.6 },
+        bounds: { x: 0.15, y: 0.1, width: 0.7, height: 0.5 },
       },
       {
         name: 'button',
-        bounds: { x: 0.15, y: 0.6, width: 0.7, height: 0.4 },
+        bounds: { x: 0.15, y: 0.7, width: 0.7, height: 0.2 },
       },
       {
         name: 'blocker',
@@ -52,7 +52,7 @@ const getCTAGridPortraitConfig = () => {
       },
       {
         name: 'button',
-        bounds: { x: 0.15, y: 0.7, width: 0.7, height: 0.3 },
+        bounds: { x: 0.1, y: 0.7, width: 0.8, height: 0.3 },
       },
       {
         name: 'blocker',

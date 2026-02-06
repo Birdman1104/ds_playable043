@@ -2,7 +2,7 @@ import { lego } from '@armathai/lego';
 import { SOUNDS } from 'assetsInfo/audio';
 import { Howl } from 'howler';
 import { MainGameEvents, SoundEvents } from 'lego/events/MainEvents';
-import { SoundModelEvents } from 'lego/events/ModelEvents';
+import { CtaModelEvents, SoundModelEvents } from 'lego/events/ModelEvents';
 import { SoundState } from 'models/SoundModel';
 
 const VOLUMES = {
@@ -30,6 +30,7 @@ class SoundControl {
       .on(SoundEvents.Theme, this.playTheme, this)
       .on(SoundEvents.Pop, this.playPop, this)
       .on(SoundEvents.Bell, this.playBell, this)
+      .on(CtaModelEvents.VisibleUpdate, this.playWin, this)
       .on(SoundModelEvents.StateUpdate, this.onSoundStateUpdate, this);
   }
 
@@ -49,6 +50,11 @@ class SoundControl {
 
   private playTheme(): void {
     this.sounds.theme?.play();
+  }
+
+  private playWin(): void {
+    this.sounds.theme?.stop();
+    this.sounds.win?.play();
   }
 
   private playBell(): void {
