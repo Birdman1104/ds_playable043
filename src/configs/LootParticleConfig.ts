@@ -2,12 +2,12 @@ import { Resource, Texture } from '@pixi/core';
 
 export const PARTICLE_CONFIG = {
   lifetime: {
-    min: 7,
-    max: 10,
+    min: 1,
+    max: 2,
   },
-  frequency: 0.1,
-  emitterLifetime: 2,
-  maxParticles: 100,
+  frequency: 0.01,
+  emitterLifetime: 1,
+  maxParticles: 50,
   addAtBack: true,
   pos: {
     x: 0,
@@ -33,20 +33,21 @@ export const PARTICLE_CONFIG = {
       },
     },
     {
-      type: 'moveSpeed',
+      type: 'rotation',
       config: {
-        speed: {
-          list: [
-            {
-              time: 0,
-              value: 400,
-            },
-            {
-              time: 1,
-              value: 430,
-            },
-          ],
-        },
+        accel: 10,
+        minSpeed: 0,
+        maxSpeed: 50,
+        minStart: 360,
+        maxStart: 360,
+      },
+    },
+
+    {
+      type: 'moveSpeedStatic',
+      config: {
+        min: 600,
+        max: 800,
       },
     },
     {

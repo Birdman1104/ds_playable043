@@ -37,6 +37,18 @@ export class SoundModel extends ObservableModel {
     this._state = SoundState.Off;
   }
 
+  public mute(): void {
+    this._state = SoundState.Off;
+  }
+
+  public unmute(): void {
+    this._state = SoundState.On;
+  }
+
+  public focusChange(focus: boolean): void {
+    focus ? this.unmute() : this.mute();
+  }
+
   public toggle(): void {
     this._state = this._state === SoundState.On ? SoundState.Off : SoundState.On;
   }

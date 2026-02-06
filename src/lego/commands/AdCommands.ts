@@ -43,6 +43,19 @@ export const restartHintCommand = (): void => {
 export const onSoundToggleCommand = (): void => {
   Head.ad?.sound?.toggle();
 };
+
+export const onSoundMuteCommand = (): void => {
+  Head.ad?.sound?.mute();
+};
+
+export const onSoundUnmuteCommand = (): void => {
+  Head.ad?.sound?.unmute();
+};
+
+export const onFocusChangeCommand = (focus: boolean): void => {
+  Head.ad?.sound?.focusChange(focus);
+};
+
 export const takeToStoreCommand = (): void => {
   try {
     // @ts-ignore

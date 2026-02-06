@@ -43,12 +43,16 @@ class Logo extends Container {
 }
 
 class Sound extends Container {
-  private isMuted = false;
-  private icon: Sprite = makeSprite({ frame: 'sound_on.png', atlas: 'game' });
+  private isMuted = true;
+  private icon: Sprite = makeSprite({
+    frame: this.isMuted ? 'sound_off.png' : 'sound_on.png',
+    atlas: 'game',
+  });
 
   constructor() {
     super();
 
+    lego.event.on(SoundModelEvents.StateUpdate, this.onSoundStateUpdate, this);
     this.build();
   }
 
@@ -60,7 +64,10 @@ class Sound extends Container {
 
   private onPointerDown(): void {
     lego.event.emit(this.isMuted ? SoundEvents.Unmute : SoundEvents.Mute);
-    this.isMuted = !this.isMuted;
+  }
+
+  private onSoundStateUpdate(state: SoundState): void {
+    this.isMuted = state === SoundState.Off;
     this.icon.texture = Texture.from(`sound_${this.isMuted ? 'off' : 'on'}.png`);
   }
 }
