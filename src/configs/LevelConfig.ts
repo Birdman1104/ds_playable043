@@ -2,11 +2,11 @@ export const MISFILLED1: { x: number; y: number }[] = [
   // background - black
   // filled wrong gem - orange
   // correct gem - black
+  { x: 30, y: 55 },
+  { x: 31, y: 54 },
   { x: 27, y: 55 },
   { x: 28, y: 55 },
   { x: 29, y: 55 },
-  { x: 30, y: 55 },
-  { x: 31, y: 54 },
   { x: 32, y: 54 },
   { x: 33, y: 54 },
   { x: 34, y: 53 },
@@ -16,20 +16,23 @@ export const MISFILLED1: { x: number; y: number }[] = [
   { x: 38, y: 52 },
   { x: 39, y: 51 },
   { x: 40, y: 51 },
-  { x: 41, y: 50 },
-  { x: 42, y: 49 },
-  { x: 43, y: 48 },
-  { x: 44, y: 47 },
   { x: 45, y: 46 },
   { x: 46, y: 45 },
   { x: 46, y: 44 },
   { x: 46, y: 43 },
+  { x: 41, y: 50 },
+  { x: 42, y: 49 },
+  { x: 43, y: 48 },
+  { x: 44, y: 47 },
 ];
 
 export const MISFILLED2: { x: number; y: number }[] = [
   // background - yellow
   // filled wrong gem - grey
   // correct gem - yellow
+  { x: 30, y: 51 },
+  { x: 31, y: 51 },
+  { x: 32, y: 51 },
   { x: 27, y: 54 },
   { x: 27, y: 53 },
   { x: 27, y: 52 },
@@ -37,9 +40,6 @@ export const MISFILLED2: { x: number; y: number }[] = [
   { x: 27, y: 50 },
   { x: 28, y: 51 },
   { x: 29, y: 51 },
-  { x: 30, y: 51 },
-  { x: 31, y: 51 },
-  { x: 32, y: 51 },
   { x: 33, y: 51 },
   { x: 34, y: 51 },
   { x: 33, y: 52 },
@@ -114,28 +114,28 @@ export const MISFILLED5: { x: number; y: number }[] = [
   // background - grey
   // filled wrong gem - yellow
   // correct gem - grey
-  { x: 48, y: 36 },
-  { x: 49, y: 36 },
-  { x: 50, y: 36 },
-  { x: 51, y: 36 },
-  { x: 52, y: 36 },
-  { x: 53, y: 36 },
-  { x: 54, y: 36 },
-  { x: 55, y: 36 },
-  { x: 55, y: 37 },
   { x: 54, y: 37 },
   { x: 53, y: 37 },
   { x: 52, y: 37 },
   { x: 51, y: 37 },
+  { x: 54, y: 36 },
+  { x: 55, y: 36 },
+  { x: 48, y: 36 },
+  { x: 52, y: 36 },
+  { x: 53, y: 36 },
+  { x: 55, y: 37 },
   { x: 50, y: 37 },
   { x: 52, y: 38 },
-  { x: 53, y: 38 },
-  { x: 54, y: 38 },
   { x: 51, y: 39 },
+  { x: 49, y: 36 },
   { x: 50, y: 39 },
   { x: 49, y: 39 },
   { x: 49, y: 38 },
+  { x: 50, y: 36 },
+  { x: 51, y: 36 },
   { x: 48, y: 38 },
+  { x: 53, y: 38 },
+  { x: 54, y: 38 },
 ];
 
 export const MISFILLED6: { x: number; y: number }[] = [

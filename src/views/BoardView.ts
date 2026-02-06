@@ -22,7 +22,7 @@ import {
   MISFILLED9,
 } from '../configs/LevelConfig';
 import { getHandSpriteConfig } from '../configs/SpriteConfig';
-import { MainGameEvents } from '../lego/events/MainEvents';
+import { MainGameEvents, SoundEvents } from '../lego/events/MainEvents';
 import { delayRunnable, makeSprite } from '../utils/Utils';
 
 const CELL_SIZE = 133;
@@ -154,6 +154,7 @@ export class BoardView extends Container {
     this.buildStack2();
     this.buildSegment1();
     this.buildSegment2();
+    lego.event.emit(SoundEvents.Theme);
 
     delayRunnable(INIT_DELAY, () => {
       this.zoomIntoSegment1();
@@ -283,6 +284,7 @@ export class BoardView extends Container {
   }
 
   private onStack1Click(): void {
+    lego.event.emit(SoundEvents.Click);
     if (!this.activeColor || this.animationInProgress || this.stack1Filled) return;
     this.restartHint();
     anime.remove(this.stack1Overlay);
@@ -291,6 +293,7 @@ export class BoardView extends Container {
   }
 
   private onStack2Click(): void {
+    lego.event.emit(SoundEvents.Click);
     if (!this.activeColor || this.animationInProgress || this.stack2Filled) return;
     this.restartHint();
     anime.remove(this.stack2Overlay);
@@ -314,6 +317,7 @@ export class BoardView extends Container {
         delay: i * 10,
         easing: 'easeInOutSine',
         complete: () => {
+          lego.event.emit(SoundEvents.Bell);
           gem.scale.set(1, 1);
           if (i === this.chosenGems.length - 1) {
             this.chosenGems.forEach((gem, i) => {
@@ -354,6 +358,7 @@ export class BoardView extends Container {
         delay: i * 10,
         easing: 'easeInOutSine',
         complete: () => {
+          lego.event.emit(SoundEvents.Bell);
           gem.scale.set(1, 1);
           if (i === this.chosenGems.length - 1) {
             this.chosenGems.forEach((gem) => {
@@ -735,6 +740,7 @@ export class BoardView extends Container {
   }
 
   private onMisfilled1GemClick(gemo: Sprite, color: string): void {
+    lego.event.emit(SoundEvents.Click);
     if (this.animationInProgress) return;
 
     if (this.chosenGems.find((gem) => gem === gemo)) {
@@ -806,7 +812,8 @@ export class BoardView extends Container {
         targets: gem,
         y: '-=20',
         duration: 100,
-        delay: i * 4,
+        delay: i * 10,
+        complete: () => lego.event.emit(SoundEvents.Pop),
         easing: 'easeInOutSine',
       });
       anime({
@@ -814,13 +821,14 @@ export class BoardView extends Container {
         x: 1.1,
         y: 1.1,
         duration: 100,
-        delay: i * 4,
+        delay: i * 10,
         easing: 'easeInOutSine',
       });
     });
   }
 
   private onMisfilled2GemClick(gemo: Sprite, color: string): void {
+    lego.event.emit(SoundEvents.Click);
     if (this.animationInProgress) return;
     if (this.chosenGems.find((gem) => gem === gemo)) {
       return;
@@ -864,6 +872,7 @@ export class BoardView extends Container {
   }
 
   private onMisfilled1EmptyClick(cell: Sprite, correctColor: string): void {
+    lego.event.emit(SoundEvents.Click);
     if (!this.activeColor || this.animationInProgress) return;
     this.restartHint();
 
@@ -976,6 +985,7 @@ export class BoardView extends Container {
   }
 
   private onMisfilled2EmptyClick(cell: Sprite, correctColor: string): void {
+    lego.event.emit(SoundEvents.Click);
     if (!this.activeColor || this.animationInProgress) return;
     this.restartHint();
 

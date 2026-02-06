@@ -1,7 +1,9 @@
 // @ts-nocheck
 
-import background from '../assets/sounds/background.mp3'; 
-import click from '../assets/sounds/click.mp3'; 
-import lose from '../assets/sounds/lose.mp3'; 
-import win from '../assets/sounds/win.mp3'; 
-export const SOUNDS = [{name: 'background', path:background,},{name: 'click', path:click,},{name: 'lose', path:lose,},{name: 'win', path:win,},]
+import bell from '../assets/sounds/bell.mp3'; 
+import crystalPickup from '../assets/sounds/crystalPickup.mp3'; 
+import pop from '../assets/sounds/pop.mp3'; 
+import tap from '../assets/sounds/tap.wav'; 
+import theme from '../assets/sounds/theme.mp3'; 
+import win from '../assets/sounds/win.wav'; 
+export const SOUNDS = [{name: 'bell', path:bell,},{name: 'crystalPickup', path:crystalPickup,},{name: 'pop', path:pop,},{name: 'tap', path:tap,},{name: 'theme', path:theme,},{name: 'win', path:win,},]

@@ -15,6 +15,9 @@ export const UIEvents = Object.freeze({
 });
 
 export const SoundEvents = Object.freeze({
+  Bell: 'SoundEventsBell',
+  Pop: 'SoundEventsPop',
+  Theme: 'SoundEventsTheme',
   Click: 'SoundEventsClick',
 });
 

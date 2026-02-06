@@ -2,21 +2,20 @@ import { lego } from '@armathai/lego';
 import { SOUNDS } from 'assetsInfo/audio';
 import { Howl } from 'howler';
 import { MainGameEvents, SoundEvents } from 'lego/events/MainEvents';
-import {
-  GameModelEvents,
-  SoundModelEvents
-} from 'lego/events/ModelEvents';
-import { GameState } from 'models/GameModel';
+import { SoundModelEvents } from 'lego/events/ModelEvents';
 import { SoundState } from 'models/SoundModel';
 
 const VOLUMES = {
   loot: 0.5,
 };
+
+const MAX_CONCURRENT_SOUNDS = 4;
+
 class SoundControl {
   private sounds: { [key: string]: Howl };
   private isMutedFromIcon = false;
-
-  private gameState = GameState.Unknown;
+  private activePopSounds: Set<number> = new Set();
+  private activeBellSounds: Set<number> = new Set();
 
   public constructor() {
     this.sounds = {};
@@ -24,8 +23,10 @@ class SoundControl {
     lego.event
       .on(MainGameEvents.MuteUpdate, this.focusChange, this)
       .on(SoundEvents.Click, this.playClick, this)
-      .on(SoundModelEvents.StateUpdate, this.onSoundStateUpdate, this)
-      .on(GameModelEvents.StateUpdate, this.onGameStateUpdate, this);
+      .on(SoundEvents.Theme, this.playTheme, this)
+      .on(SoundEvents.Pop, this.playPop, this)
+      .on(SoundEvents.Bell, this.playBell, this)
+      .on(SoundModelEvents.StateUpdate, this.onSoundStateUpdate, this);
   }
 
   public loadSounds(): void {
@@ -33,35 +34,59 @@ class SoundControl {
       this.sounds[name] = new Howl({
         src: path,
         volume: VOLUMES[name as keyof typeof VOLUMES] ?? 1,
-        loop: name === 'background',
+        loop: name === 'theme',
       });
     });
+
+    console.warn(this.sounds);
   }
 
   private playClick(): void {
-    this.sounds.click?.play();
+    this.sounds.tap?.play();
   }
 
-  private onGameStateUpdate(state: GameState): void {
-    this.gameState = state;
-    switch (state) {
-      case GameState.Intro:
-        this.sounds.background?.play();
-        break;
-      // case GameState.Win:
-      //   this.sounds.background?.stop();
-      //   this.sounds.win?.play();
-      //   break;
-      case GameState.Lose:
-        this.sounds.background?.stop();
-        this.sounds.lose?.play();
-        break;
+  private playTheme(): void {
+    this.sounds.theme?.play();
+  }
 
-      default:
-        break;
+  private playBell(): void {
+    const sound = this.sounds.bell;
+    if (!sound) return;
+
+    if (this.activeBellSounds.size >= MAX_CONCURRENT_SOUNDS) {
+      return;
     }
-    if (state === GameState.Intro) {
+
+    const soundId = sound.play();
+    this.activeBellSounds.add(soundId);
+
+    sound.on(
+      'end',
+      () => {
+        this.activeBellSounds.delete(soundId);
+      },
+      soundId,
+    );
+  }
+
+  private playPop(): void {
+    const sound = this.sounds.pop;
+    if (!sound) return;
+
+    if (this.activePopSounds.size >= MAX_CONCURRENT_SOUNDS) {
+      return;
     }
+
+    const soundId = sound.play();
+    this.activePopSounds.add(soundId);
+
+    sound.on(
+      'end',
+      () => {
+        this.activePopSounds.delete(soundId);
+      },
+      soundId,
+    );
   }
 
   private onSoundStateUpdate(state: SoundState): void {
@@ -85,7 +110,7 @@ class SoundControl {
   private focusChange(outOfFocus: boolean): void {
     if (this.isMutedFromIcon) return;
     for (const [key, value] of Object.entries(this.sounds)) {
-      value.volume(outOfFocus ? 0 : VOLUMES[key as keyof typeof VOLUMES] ?? 1);
+      value.volume(outOfFocus ? 0 : (VOLUMES[key as keyof typeof VOLUMES] ?? 1));
     }
   }
 }
