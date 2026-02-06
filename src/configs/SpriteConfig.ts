@@ -32,6 +32,18 @@ export const getButtonSpriteConfig = (): SpriteConfig => {
   };
 };
 
+export const getCongratsSpriteConfig = (
+  type: 'good' | 'great' | 'perfect' | 'goodJob',
+): SpriteConfig => {
+  return {
+    atlas: 'game',
+    frame: `${type}.png`,
+    scaleX: 0,
+    scaleY: 0,
+    alpha: 0,
+  };
+};
+
 export const getBackgroundSpriteConfig = (): SpriteConfig => {
   return {
     frame: `bkg.jpg`,

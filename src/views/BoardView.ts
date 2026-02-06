@@ -21,7 +21,7 @@ import {
   MISFILLED8,
   MISFILLED9,
 } from '../configs/LevelConfig';
-import { getHandSpriteConfig } from '../configs/SpriteConfig';
+import { getCongratsSpriteConfig, getHandSpriteConfig } from '../configs/SpriteConfig';
 import { MainGameEvents, SoundEvents } from '../lego/events/MainEvents';
 import { delayRunnable, makeSprite } from '../utils/Utils';
 
@@ -29,7 +29,7 @@ const CELL_SIZE = 133;
 const CELL_COUNT_X = 64;
 const CELL_COUNT_Y = 56;
 
-const INIT_DELAY = 0.1;
+const INIT_DELAY = 0.5;
 const ZOOM_DURATION = 1000;
 const ZOOM_SCALE = 2.2;
 
@@ -51,6 +51,23 @@ const getGemColor = (id: number): string => {
 const timer = {
   value: 0,
 };
+
+const SEGEMNT1_X = -7500;
+const SEGEMNT1_Y = -200;
+
+const SEGEMNT2_X = 300;
+const SEGEMNT2_Y = -5700;
+
+const CONGRATS_TEXT_X = 4700;
+const CONGRATS_TEXT_Y = 5500;
+
+const TEXT_ORDER: ('good' | 'great' | 'perfect' | 'goodJob')[] = [
+  'good',
+  'great',
+  'perfect',
+  'goodJob',
+];
+let currentTextIndex = 0;
 
 export class BoardView extends Container {
   private boardRoot = new Container();
@@ -97,7 +114,8 @@ export class BoardView extends Container {
   private cellsGroup17: Sprite[] = [];
 
   private correctCounter = 0;
-  private misfills = 7;
+  private misfills1 = 7;
+  private misfills2 = 14;
   private firstFromFirst = true;
   private firstFromSecond = true;
 
@@ -129,6 +147,8 @@ export class BoardView extends Container {
 
   private hand: Sprite = makeSprite(getHandSpriteConfig());
 
+  private congratsText: Sprite = makeSprite(getCongratsSpriteConfig(TEXT_ORDER[currentTextIndex]));
+
   constructor() {
     super();
 
@@ -148,6 +168,9 @@ export class BoardView extends Container {
     this.boardRoot.addChild(this.misfilledLayer1);
     this.boardRoot.addChild(this.misfilledLayer2);
     this.boardRoot.addChild(this.hand);
+
+    this.addChild(this.congratsText);
+    this.congratsText.position.set(CONGRATS_TEXT_X, CONGRATS_TEXT_Y);
 
     this.drawBoard();
     this.buildStack1();
@@ -314,7 +337,7 @@ export class BoardView extends Container {
         x: this.stack1.x + s.x,
         y: this.stack1.y + s.y,
         duration: 300,
-        delay: i * 10,
+        delay: i * 50,
         easing: 'easeInOutSine',
         complete: () => {
           lego.event.emit(SoundEvents.Bell);
@@ -790,7 +813,7 @@ export class BoardView extends Container {
         targets: gem,
         y: '+=20',
         duration: 100,
-        delay: i * 4,
+        delay: i * 25,
         easing: 'easeInOutSine',
       });
       anime({
@@ -798,7 +821,7 @@ export class BoardView extends Container {
         x: 1,
         y: 1,
         duration: 100,
-        delay: i * 4,
+        delay: i * 20,
         easing: 'easeInOutSine',
       });
     });
@@ -812,7 +835,7 @@ export class BoardView extends Container {
         targets: gem,
         y: '-=20',
         duration: 100,
-        delay: i * 10,
+        delay: i * 25,
         complete: () => lego.event.emit(SoundEvents.Pop),
         easing: 'easeInOutSine',
       });
@@ -821,7 +844,7 @@ export class BoardView extends Container {
         x: 1.1,
         y: 1.1,
         duration: 100,
-        delay: i * 10,
+        delay: i * 20,
         easing: 'easeInOutSine',
       });
     });
@@ -899,8 +922,8 @@ export class BoardView extends Container {
           targets: gem,
           x: c.x,
           y: c.y,
-          duration: 300,
-          delay: i * 10,
+          duration: 400,
+          delay: i * 50,
           easing: 'easeInOutSine',
           complete: () => {
             this.misfilledMap1.forEach((m, k) => {
@@ -956,8 +979,8 @@ export class BoardView extends Container {
               this.animationInProgress = false;
 
               if (correctColor === activeColorCopy) {
-                this.correctCounter++;
-                if (this.correctCounter === this.misfills) {
+                this.updateCorrectCounter();
+                if (this.correctCounter === this.misfills1) {
                   this.stopHintTimer();
                   this.hideHint();
                   this.zoomOut().then(() => {
@@ -1012,8 +1035,8 @@ export class BoardView extends Container {
           targets: gem,
           x: c.x,
           y: c.y,
-          duration: 300,
-          delay: i * 10,
+          duration: 500,
+          delay: i * 50,
           easing: 'easeInOutSine',
           complete: () => {
             this.misfilledMap2.forEach((m, k) => {
@@ -1071,8 +1094,8 @@ export class BoardView extends Container {
               this.animationInProgress = false;
 
               if (correctColor === activeColorCopy) {
-                this.correctCounter++;
-                if (this.correctCounter === this.misfills * 2) {
+                this.updateCorrectCounter();
+                if (this.correctCounter === this.misfills2) {
                   this.stopHintTimer();
                   this.hideHint();
                   this.zoomOut().then(() => {
@@ -1156,8 +1179,8 @@ export class BoardView extends Container {
       targets: animTarget,
       scaleX: ZOOM_SCALE,
       scaleY: ZOOM_SCALE,
-      x: -7500,
-      y: -200,
+      x: SEGEMNT1_X,
+      y: SEGEMNT1_Y,
       duration: ZOOM_DURATION,
       easing: 'easeInOutQuad',
       update: () => {
@@ -1201,8 +1224,8 @@ export class BoardView extends Container {
       targets: animTarget,
       scaleX: ZOOM_SCALE,
       scaleY: ZOOM_SCALE,
-      x: 300,
-      y: -5700,
+      x: SEGEMNT2_X,
+      y: SEGEMNT2_Y,
       duration: ZOOM_DURATION,
       easing: 'easeInOutQuad',
       update: () => {
@@ -1242,6 +1265,7 @@ export class BoardView extends Container {
         scaleY: 1,
         x: 500,
         y: 0,
+        delay: 2000,
         duration: ZOOM_DURATION,
         easing: 'easeInOutQuad',
         update: () => {
@@ -1254,7 +1278,7 @@ export class BoardView extends Container {
   }
 
   private getHintPositions(): Point[] {
-    const isSegment1 = this.correctCounter < this.misfills;
+    const isSegment1 = this.correctCounter < this.misfills1;
     const misfilledMap = isSegment1 ? this.misfilledMap1 : this.misfilledMap2;
     const stackMap = isSegment1 ? this.stack1Map : this.stack2Map;
     const stackFilled = isSegment1 ? this.stack1Filled : this.stack2Filled;
@@ -1463,5 +1487,55 @@ export class BoardView extends Container {
     this.hideHint();
     this.stopHintTimer();
     this.startHintTimer();
+  }
+
+  private updateCorrectCounter(): void {
+    this.correctCounter++;
+    if (this.correctCounter >= this.misfills1 - 3 && this.correctCounter <= this.misfills1) {
+      this.jumpText();
+    }
+    if (this.correctCounter >= this.misfills2 - 3 && this.correctCounter <= this.misfills2) {
+      this.jumpText();
+    }
+  }
+
+  private jumpText(): void {
+    anime({
+      targets: this.congratsText,
+      y: 4000,
+      duration: 1400,
+      easing: 'easeOutBounce',
+      complete: () => {
+        currentTextIndex = (currentTextIndex + 1) % TEXT_ORDER.length;
+
+        anime({
+          targets: this.congratsText,
+          alpha: 0,
+          duration: 200,
+          easing: 'easeInOutQuad',
+          complete: () => {
+            this.congratsText.alpha = 0;
+            this.congratsText.scale.set(0.01);
+            this.congratsText.position.set(CONGRATS_TEXT_X, CONGRATS_TEXT_Y);
+            this.congratsText.texture = Texture.from(
+              getCongratsSpriteConfig(TEXT_ORDER[currentTextIndex]).frame,
+            );
+          },
+        });
+      },
+    });
+    anime({
+      targets: this.congratsText,
+      alpha: 1,
+      duration: 1000,
+      easing: 'easeInOutQuad',
+    });
+    anime({
+      targets: this.congratsText.scale,
+      x: 10,
+      y: 10,
+      duration: 1000,
+      easing: 'easeInOutSine',
+    });
   }
 }

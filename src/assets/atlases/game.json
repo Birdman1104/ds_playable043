@@ -120,14 +120,110 @@
         "y": 0.5
       }
     },
+    "perfect.png": {
+      "frame": {
+        "x": 1317,
+        "y": 376,
+        "w": 399,
+        "h": 163
+      },
+      "rotated": true,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 399,
+        "h": 163
+      },
+      "sourceSize": {
+        "w": 399,
+        "h": 163
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    "good.png": {
+      "frame": {
+        "x": 3,
+        "y": 864,
+        "w": 398,
+        "h": 172
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 398,
+        "h": 172
+      },
+      "sourceSize": {
+        "w": 398,
+        "h": 172
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    "goodJob.png": {
+      "frame": {
+        "x": 3,
+        "y": 1042,
+        "w": 387,
+        "h": 287
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 387,
+        "h": 287
+      },
+      "sourceSize": {
+        "w": 387,
+        "h": 287
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
+    "great.png": {
+      "frame": {
+        "x": 1317,
+        "y": 781,
+        "w": 378,
+        "h": 171
+      },
+      "rotated": true,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 378,
+        "h": 171
+      },
+      "sourceSize": {
+        "w": 378,
+        "h": 171
+      },
+      "pivot": {
+        "x": 0.5,
+        "y": 0.5
+      }
+    },
     "sound_on.png": {
       "frame": {
-        "x": 618,
+        "x": 1494,
         "y": 376,
         "w": 47,
         "h": 41
       },
-      "rotated": true,
+      "rotated": false,
       "trimmed": true,
       "spriteSourceSize": {
         "x": 5,
@@ -146,8 +242,8 @@
     },
     "sound_off.png": {
       "frame": {
-        "x": 618,
-        "y": 429,
+        "x": 1494,
+        "y": 423,
         "w": 41,
         "h": 41
       },
@@ -176,7 +272,7 @@
     "format": "RGBA8888",
     "size": {
       "w": 1570,
-      "h": 861
+      "h": 1332
     },
     "scale": 1
   }
