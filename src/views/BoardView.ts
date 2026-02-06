@@ -365,7 +365,8 @@ export class BoardView extends Container {
     this.stack1Slots.forEach((s, i) => {
       const gem = this.chosenGems[this.chosenGems.length - i - 1];
       if (!gem) return;
-      gem.scale.set(0.8, 0.8);
+      gem.scale.set(0.8);
+      gem.y += 20;
       anime({
         targets: gem,
         x: this.stack1.x + s.x,
@@ -406,7 +407,8 @@ export class BoardView extends Container {
     this.stack2Slots.forEach((s, i) => {
       const gem = this.chosenGems[this.chosenGems.length - i - 1];
       if (!gem) return;
-      gem.scale.set(0.8, 0.8);
+      gem.scale.set(0.8);
+      gem.y += 20;
       anime({
         targets: gem,
         x: this.stack2.x + s.x,
@@ -859,7 +861,6 @@ export class BoardView extends Container {
         targets: gem,
         y: '+=20',
         duration: 100,
-        delay: i * 25,
         easing: 'easeInOutSine',
       });
       anime({
@@ -867,7 +868,6 @@ export class BoardView extends Container {
         x: 1,
         y: 1,
         duration: 100,
-        delay: i * 20,
         easing: 'easeInOutSine',
       });
     });
@@ -881,7 +881,6 @@ export class BoardView extends Container {
         targets: gem,
         y: '-=20',
         duration: 100,
-        delay: i * 25,
         complete: () => lego.event.emit(SoundEvents.Pop),
         easing: 'easeInOutSine',
       });
@@ -890,7 +889,6 @@ export class BoardView extends Container {
         x: 1.1,
         y: 1.1,
         duration: 100,
-        delay: i * 20,
         easing: 'easeInOutSine',
       });
     });
@@ -963,7 +961,8 @@ export class BoardView extends Container {
       cellsGroup.forEach((c, i) => {
         const gem = this.chosenGems[this.chosenGems.length - i - 1];
         if (!gem) return;
-        gem.scale.set(0.8, 0.8);
+        gem.scale.set(0.8);
+        gem.y += 20;
         anime({
           targets: gem,
           x: c.x,
@@ -1076,7 +1075,8 @@ export class BoardView extends Container {
       cellsGroup.forEach((c, i) => {
         const gem = this.chosenGems[this.chosenGems.length - i - 1];
         if (!gem) return;
-        gem.scale.set(0.8, 0.8);
+        gem.scale.set(0.8);
+        gem.y += 20;
         anime({
           targets: gem,
           x: c.x,

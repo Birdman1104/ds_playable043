@@ -1,12 +1,15 @@
-export const MISFILLED1: { x: number; y: number }[] = [
+const sortByX = (array: { x: number; y: number }[]): { x: number; y: number }[] => {
+  return [...array].sort((a, b) => a.x - b.x);
+};
+export const MISFILLED1: { x: number; y: number }[] = sortByX([
   // background - black
   // filled wrong gem - orange
   // correct gem - black
-  { x: 30, y: 55 },
-  { x: 31, y: 54 },
   { x: 27, y: 55 },
   { x: 28, y: 55 },
   { x: 29, y: 55 },
+  { x: 30, y: 55 },
+  { x: 31, y: 54 },
   { x: 32, y: 54 },
   { x: 33, y: 54 },
   { x: 34, y: 53 },
@@ -16,73 +19,73 @@ export const MISFILLED1: { x: number; y: number }[] = [
   { x: 38, y: 52 },
   { x: 39, y: 51 },
   { x: 40, y: 51 },
-  { x: 45, y: 46 },
-  { x: 46, y: 45 },
-  { x: 46, y: 44 },
-  { x: 46, y: 43 },
   { x: 41, y: 50 },
   { x: 42, y: 49 },
   { x: 43, y: 48 },
   { x: 44, y: 47 },
-];
+  { x: 45, y: 46 },
+  { x: 46, y: 45 },
+  { x: 46, y: 44 },
+  { x: 46, y: 43 },
+]);
 
-export const MISFILLED2: { x: number; y: number }[] = [
+export const MISFILLED2: { x: number; y: number }[] = sortByX([
   // background - yellow
   // filled wrong gem - grey
   // correct gem - yellow
-  { x: 30, y: 51 },
-  { x: 31, y: 51 },
-  { x: 32, y: 51 },
   { x: 27, y: 54 },
   { x: 27, y: 53 },
   { x: 27, y: 52 },
   { x: 27, y: 51 },
   { x: 27, y: 50 },
-  { x: 28, y: 51 },
-  { x: 29, y: 51 },
-  { x: 33, y: 51 },
-  { x: 34, y: 51 },
-  { x: 33, y: 52 },
-  { x: 32, y: 52 },
-  { x: 31, y: 52 },
-  { x: 30, y: 52 },
-  { x: 29, y: 52 },
   { x: 28, y: 52 },
   { x: 28, y: 53 },
-  { x: 29, y: 53 },
-  { x: 30, y: 53 },
+  { x: 28, y: 51 },
   { x: 28, y: 54 },
-];
+  { x: 29, y: 51 },
+  { x: 29, y: 52 },
+  { x: 29, y: 53 },
+  { x: 30, y: 51 },
+  { x: 30, y: 52 },
+  { x: 30, y: 53 },
+  { x: 31, y: 51 },
+  { x: 31, y: 52 },
+  { x: 32, y: 51 },
+  { x: 32, y: 52 },
+  { x: 33, y: 51 },
+  { x: 33, y: 52 },
+  { x: 34, y: 51 },
+]);
 
-export const MISFILLED3: { x: number; y: number }[] = [
+export const MISFILLED3: { x: number; y: number }[] = sortByX([
   // background - white
   // filled wrong gem - yellow
   // correct gem - white
   { x: 27, y: 47 },
-  { x: 28, y: 47 },
   { x: 27, y: 46 },
-  { x: 28, y: 46 },
-  { x: 29, y: 46 },
   { x: 27, y: 45 },
-  { x: 28, y: 45 },
-  { x: 29, y: 45 },
-  { x: 30, y: 45 },
-  { x: 30, y: 44 },
-  { x: 29, y: 44 },
-  { x: 28, y: 44 },
   { x: 27, y: 44 },
   { x: 27, y: 43 },
-  { x: 28, y: 43 },
-  { x: 29, y: 43 },
-  { x: 30, y: 43 },
-  { x: 29, y: 42 },
-  { x: 28, y: 42 },
   { x: 27, y: 42 },
   { x: 27, y: 41 },
+  { x: 28, y: 42 },
   { x: 28, y: 41 },
-];
+  { x: 28, y: 47 },
+  { x: 28, y: 46 },
+  { x: 28, y: 44 },
+  { x: 28, y: 43 },
+  { x: 28, y: 45 },
+  { x: 29, y: 46 },
+  { x: 29, y: 45 },
+  { x: 29, y: 44 },
+  { x: 29, y: 43 },
+  { x: 29, y: 42 },
+  { x: 30, y: 45 },
+  { x: 30, y: 44 },
+  { x: 30, y: 43 },
+]);
 
-export const MISFILLED4: { x: number; y: number }[] = [
+export const MISFILLED4: { x: number; y: number }[] = sortByX([
   // background - yellow
   // filled wrong gem - orange
   // correct gem - yellow
@@ -108,9 +111,9 @@ export const MISFILLED4: { x: number; y: number }[] = [
   { x: 29, y: 38 },
   { x: 30, y: 38 },
   { x: 31, y: 38 },
-];
+]);
 
-export const MISFILLED5: { x: number; y: number }[] = [
+export const MISFILLED5: { x: number; y: number }[] = sortByX([
   // background - grey
   // filled wrong gem - yellow
   // correct gem - grey
@@ -136,9 +139,9 @@ export const MISFILLED5: { x: number; y: number }[] = [
   { x: 48, y: 38 },
   { x: 53, y: 38 },
   { x: 54, y: 38 },
-];
+]);
 
-export const MISFILLED6: { x: number; y: number }[] = [
+export const MISFILLED6: { x: number; y: number }[] = sortByX([
   // background - orange
   // filled wrong gem - black
   // correct gem - orange
@@ -164,9 +167,9 @@ export const MISFILLED6: { x: number; y: number }[] = [
   { x: 42, y: 47 },
   { x: 43, y: 47 },
   { x: 39, y: 46 },
-];
+]);
 
-export const MISFILLED7: { x: number; y: number }[] = [
+export const MISFILLED7: { x: number; y: number }[] = sortByX([
   // background - orange
   // filled wrong gem - white
   // correct gem - orange
@@ -192,9 +195,9 @@ export const MISFILLED7: { x: number; y: number }[] = [
   { x: 42, y: 40 },
   { x: 38, y: 39 },
   { x: 39, y: 39 },
-];
+]);
 
-export const MISFILLED8: { x: number; y: number }[] = [
+export const MISFILLED8: { x: number; y: number }[] = sortByX([
   // background - grey
   // filled wrong gem - brown
   // correct gem - grey
@@ -220,9 +223,9 @@ export const MISFILLED8: { x: number; y: number }[] = [
   { x: 7, y: 34 },
   { x: 6, y: 34 },
   { x: 6, y: 33 },
-];
+]);
 
-export const MISFILLED9: { x: number; y: number }[] = [
+export const MISFILLED9: { x: number; y: number }[] = sortByX([
   // background - black
   // filled wrong gem - yellow
   // correct gem - black
@@ -248,9 +251,9 @@ export const MISFILLED9: { x: number; y: number }[] = [
   { x: 21, y: 21 },
   { x: 21, y: 20 },
   { x: 20, y: 19 },
-];
+]);
 
-export const MISFILLED10: { x: number; y: number }[] = [
+export const MISFILLED10: { x: number; y: number }[] = sortByX([
   // background - grey
   // filled wrong gem - orange
   // correct gem - grey
@@ -276,9 +279,9 @@ export const MISFILLED10: { x: number; y: number }[] = [
   { x: 16, y: 22 },
   { x: 17, y: 22 },
   { x: 18, y: 22 },
-];
+]);
 
-export const MISFILLED11: { x: number; y: number }[] = [
+export const MISFILLED11: { x: number; y: number }[] = sortByX([
   // background - brown
   // filled wrong gem - orange
   // correct gem - brown
@@ -304,9 +307,9 @@ export const MISFILLED11: { x: number; y: number }[] = [
   { x: 3, y: 27 },
   { x: 2, y: 27 },
   { x: 1, y: 27 },
-];
+]);
 
-export const MISFILLED12: { x: number; y: number }[] = [
+export const MISFILLED12: { x: number; y: number }[] = sortByX([
   // background - orange
   // filled wrong gem - black
   // correct gem - orange
@@ -332,9 +335,9 @@ export const MISFILLED12: { x: number; y: number }[] = [
   { x: 4, y: 35 },
   { x: 3, y: 35 },
   { x: 2, y: 35 },
-];
+]);
 
-export const MISFILLED13: { x: number; y: number }[] = [
+export const MISFILLED13: { x: number; y: number }[] = sortByX([
   // background - orange
   // filled wrong gem - grey
   // correct gem - orange
@@ -360,9 +363,9 @@ export const MISFILLED13: { x: number; y: number }[] = [
   { x: 21, y: 29 },
   { x: 20, y: 29 },
   { x: 19, y: 29 },
-];
+]);
 
-export const MISFILLED14: { x: number; y: number }[] = [
+export const MISFILLED14: { x: number; y: number }[] = sortByX([
   // background - yellow
   // filled wrong gem - grey
   // correct gem - yellow
@@ -388,10 +391,9 @@ export const MISFILLED14: { x: number; y: number }[] = [
   { x: 20, y: 34 },
   { x: 19, y: 35 },
   { x: 18, y: 35 },
-];
+]);
 export const LEVEL_CONFIG = {
   data: {
-    LayoutSize: '63;56',
     StashSize: 22,
     Layout: [
       { Position: '41;0', Color: 11, BlockType: 11 },
@@ -3894,6 +3896,5 @@ export const LEVEL_CONFIG = {
         ],
       },
     ],
-    EnabledBlocks: [11, 15, 13, 17, 9, 6, 5, 10, 2, 20],
   },
 };
