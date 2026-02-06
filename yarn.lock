@@ -491,6 +491,11 @@
   resolved "https://registry.npmjs.org/@pixi/filter-displacement/-/filter-displacement-7.4.3.tgz"
   integrity sha512-ax+cFA2mEnKgqf9F8qInpv09GNWzjwnASLETpwPXzWBtlAlNCeHV2tCv3+SlMdEKUkwG9sA7AmjjjC2JBUyt+Q==
 
+"@pixi/filter-outline@^7.4.3":
+  version "5.2.0"
+  resolved "https://registry.yarnpkg.com/@pixi/filter-outline/-/filter-outline-5.2.0.tgz#8572ed2c847c31c5a142db04e86f081baed0365a"
+  integrity sha512-xKfAouhZNKl6A0RvxT5i+2/ean7r16dE/QswwIkbWvr2hhHlp4p9U6XsqdgUERCDxK+IZibMAumbWs4DGxOUeQ==
+
 "@pixi/graphics@7.4.3":
   version "7.4.3"
   resolved "https://registry.npmjs.org/@pixi/graphics/-/graphics-7.4.3.tgz"
@@ -774,6 +779,11 @@
   version "3.0.3"
   resolved "https://registry.npmjs.org/@types/events/-/events-3.0.3.tgz"
   integrity sha512-trOc4AAUThEz9hapPtSd7wf5tiQKvTtu5b371UxXdTuqzIh0ArcRspRP0i0Viu+LXstIQ1z96t1nsPxT9ol01g==
+
+"@types/gradient-parser@^0.1.2":
+  version "0.1.5"
+  resolved "https://registry.yarnpkg.com/@types/gradient-parser/-/gradient-parser-0.1.5.tgz#7b25d5f080f41f0d713207894c3f2f490155462a"
+  integrity sha512-r7K3NkJz3A95WkVVmjs0NcchhHstC2C/VIYNX4JC6tieviUNo774FFeOHjThr3Vw/WCeMP9kAT77MKbIRlO/4w==
 
 "@types/hast@^3.0.4":
   version "3.0.4"
@@ -2366,6 +2376,13 @@ pixelmatch@^4.0.0:
   integrity sha512-J8B6xqiO37sU/gkcMglv6h5Jbd9xNER7aHzpfRdNmV4IbQBzBpe4l9XmbG+xPF/znacgu2jfEw+wHffaq/YkXA==
   dependencies:
     pngjs "^3.0.0"
+
+pixi-filters@^6.1.5:
+  version "6.1.5"
+  resolved "https://registry.yarnpkg.com/pixi-filters/-/pixi-filters-6.1.5.tgz#3591c6a9c1efda6a1edc298756bee33fd034e156"
+  integrity sha512-Ewb/J+kxAbaNN+0/ATJbglAJG+skGJfh7BIDP3ILIDdD6wWk1p0pGa25pVf1T8hGBOQSUNVAmwwJBwkj+cyLLA==
+  dependencies:
+    "@types/gradient-parser" "^0.1.2"
 
 pngjs@^3.0.0:
   version "3.4.0"

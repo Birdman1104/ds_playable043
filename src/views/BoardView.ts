@@ -1,6 +1,7 @@
 import { lego } from '@armathai/lego';
 import { Texture } from '@pixi/core';
 import { Container } from '@pixi/display';
+import { OutlineFilter } from '@pixi/filter-outline';
 import { Point, Rectangle } from '@pixi/math';
 import { Sprite } from '@pixi/sprite';
 import anime from 'animejs';
@@ -29,7 +30,7 @@ const CELL_SIZE = 133;
 const CELL_COUNT_X = 64;
 const CELL_COUNT_Y = 56;
 
-const INIT_DELAY = 0.5;
+const INIT_DELAY = 1.8;
 const ZOOM_DURATION = 1000;
 const ZOOM_SCALE = 2.2;
 
@@ -69,6 +70,11 @@ const TEXT_ORDER: ('good' | 'great' | 'perfect' | 'goodJob')[] = [
 ];
 let currentTextIndex = 0;
 
+const outlineProperties = {
+  thickness: 5,
+  alpha: 1,
+};
+
 export class BoardView extends Container {
   private boardRoot = new Container();
   private backgroundLayer = new Container();
@@ -79,10 +85,14 @@ export class BoardView extends Container {
   private stack2Overlay = new Container();
   private misfilledLayer1 = new Container();
   private misfilledLayer1Background = new Container();
+  private misfilledLayer1StaticGems = new Container();
   private misfilledLayer1Gems = new Container();
   private misfilledLayer2 = new Container();
   private misfilledLayer2Background = new Container();
+  private misfilledLayer2StaticGems = new Container();
   private misfilledLayer2Gems = new Container();
+  private outlineFilter1: OutlineFilter | null = null;
+  private outlineFilter2: OutlineFilter | null = null;
   private boardSlots = new Map<string, { background: Sprite; gem?: Sprite; color: string }>();
   private stack1Slots: { x: number; y: number; gem?: Sprite }[] = [];
   private stack2Slots: { x: number; y: number; gem?: Sprite }[] = [];
@@ -162,9 +172,11 @@ export class BoardView extends Container {
     this.boardRoot.addChild(this.stack2);
     this.boardRoot.addChild(this.stack2Overlay);
     this.misfilledLayer1.addChild(this.misfilledLayer1Background);
+    this.misfilledLayer1.addChild(this.misfilledLayer1StaticGems);
     this.misfilledLayer1.addChild(this.misfilledLayer1Gems);
     this.misfilledLayer2.addChild(this.misfilledLayer2Background);
     this.misfilledLayer2.addChild(this.misfilledLayer2Gems);
+    this.misfilledLayer2.addChild(this.misfilledLayer2StaticGems);
     this.boardRoot.addChild(this.misfilledLayer1);
     this.boardRoot.addChild(this.misfilledLayer2);
     this.boardRoot.addChild(this.hand);
@@ -179,8 +191,27 @@ export class BoardView extends Container {
     this.buildSegment2();
     lego.event.emit(SoundEvents.Theme);
 
-    delayRunnable(INIT_DELAY, () => {
-      this.zoomIntoSegment1();
+    this.outlineFilter1 = new OutlineFilter(5, 0xfcd121, 0.3);
+    this.outlineFilter2 = new OutlineFilter(5, 0xfcd121, 0.3);
+    this.misfilledLayer1Background.filters = [this.outlineFilter1];
+    this.misfilledLayer2Background.filters = [this.outlineFilter2];
+    this.backgroundLayer.filters = [new OutlineFilter(3, 0xffffff, 0.3)];
+
+    anime({
+      targets: outlineProperties,
+      alpha: 0,
+      duration: (INIT_DELAY * 1000) / 4,
+      easing: 'easeInOutSine',
+      direction: 'alternate',
+      loop: 5,
+      update: () => {
+        this.setOutlineAlpha(outlineProperties.alpha);
+      },
+      complete: () => {
+        this.misfilledLayer1Background.filters = [];
+        this.misfilledLayer2Background.filters = [];
+        this.zoomIntoSegment1();
+      },
     });
   }
 
@@ -508,7 +539,7 @@ export class BoardView extends Container {
           x: cx,
           y: cy,
         });
-        this.misfilledLayer1Background.addChild(gem);
+        this.misfilledLayer1StaticGems.addChild(gem);
       } else {
         const empty = makeSprite({
           frame: `empty_${misfilled.background}.png`,
@@ -653,7 +684,7 @@ export class BoardView extends Container {
           x: cx,
           y: cy,
         });
-        this.misfilledLayer2Background.addChild(gem);
+        this.misfilledLayer2StaticGems.addChild(gem);
       } else {
         const empty = makeSprite({
           frame: `empty_${misfilled.background}.png`,
@@ -1537,5 +1568,30 @@ export class BoardView extends Container {
       duration: 1000,
       easing: 'easeInOutSine',
     });
+  }
+
+  public setOutlineAlpha1(alpha: number): void {
+    if (this.outlineFilter1) {
+      this.outlineFilter1.alpha = alpha;
+    }
+  }
+
+  public setOutlineAlpha2(alpha: number): void {
+    if (this.outlineFilter2) {
+      this.outlineFilter2.alpha = alpha;
+    }
+  }
+
+  public setOutlineAlpha(alpha: number): void {
+    this.setOutlineAlpha1(alpha);
+    this.setOutlineAlpha2(alpha);
+  }
+
+  public getOutlineAlpha1(): number {
+    return this.outlineFilter1?.alpha ?? 0;
+  }
+
+  public getOutlineAlpha2(): number {
+    return this.outlineFilter2?.alpha ?? 0;
   }
 }

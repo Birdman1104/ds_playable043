@@ -26,6 +26,7 @@
     "@pixi/events": "7.4.3",
     "@pixi/extensions": "7.4.3",
     "@pixi/filter-displacement": "^7.4.3",
+    "@pixi/filter-outline": "^5.2.0",
     "@pixi/graphics": "7.4.3",
     "@pixi/math": "7.4.3",
     "@pixi/mesh": "7.4.3",
@@ -42,6 +43,7 @@
     "animejs": "3.2.2",
     "howler": "^2.2.4",
     "pathfinding": "^0.4.18",
+    "pixi-filters": "^6.1.5",
     "stats.js": "^0.17.0"
   },
   "devDependencies": {

@@ -53,7 +53,7 @@ class Sound extends Container {
   }
 
   private build(): void {
-    this.icon.interactive = true;
+    this.icon.eventMode = 'static';
     this.icon.on('pointerdown', this.onPointerDown, this);
     this.addChild(this.icon);
   }
