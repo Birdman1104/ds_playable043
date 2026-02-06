@@ -31,8 +31,7 @@ const getUIGridPortraitConfig = () => {
       {
         name: 'wrapper',
         scale: CellScale.envelop,
-
-        bounds: { x: 0, y: 0, width: 1, height: 1 },
+        bounds: { x: 0, y: 0.1, width: 1, height: 0.7 },
       },
     ],
   };

@@ -5,9 +5,9 @@ export const PARTICLE_CONFIG = {
     min: 1,
     max: 2,
   },
-  frequency: 0.01,
-  emitterLifetime: 1,
-  maxParticles: 50,
+  frequency: 0.005,
+  emitterLifetime: 1.3,
+  maxParticles: 60,
   addAtBack: true,
   pos: {
     x: 0,
@@ -38,8 +38,8 @@ export const PARTICLE_CONFIG = {
         accel: 10,
         minSpeed: 0,
         maxSpeed: 50,
-        minStart: 360,
-        maxStart: 360,
+        minStart: 90,
+        maxStart: -90,
       },
     },
 
