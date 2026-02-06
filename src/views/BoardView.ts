@@ -192,7 +192,6 @@ export class BoardView extends Container {
     this.buildStack2();
     this.buildSegment1();
     this.buildSegment2();
-    lego.event.emit(SoundEvents.Theme);
 
     this.outlineFilter1 = new OutlineFilter(5, 0xfcd121, 0.3);
     this.outlineFilter2 = new OutlineFilter(5, 0xfcd121, 0.3);
@@ -374,6 +373,9 @@ export class BoardView extends Container {
         duration: 300,
         delay: i * 50,
         easing: 'easeInOutSine',
+        begin: () => {
+          lego.event.emit(SoundEvents.CrystalPickup);
+        },
         complete: () => {
           lego.event.emit(SoundEvents.Bell);
           gem.scale.set(1, 1);
@@ -416,6 +418,9 @@ export class BoardView extends Container {
         duration: 300,
         delay: i * 10,
         easing: 'easeInOutSine',
+        begin: () => {
+          lego.event.emit(SoundEvents.CrystalPickup);
+        },
         complete: () => {
           lego.event.emit(SoundEvents.Bell);
           gem.scale.set(1, 1);
@@ -970,7 +975,11 @@ export class BoardView extends Container {
           duration: 400,
           delay: i * 50,
           easing: 'easeInOutSine',
+          begin: () => {
+            lego.event.emit(SoundEvents.CrystalPickup);
+          },
           complete: () => {
+            lego.event.emit(SoundEvents.Bell);
             this.misfilledMap1.forEach((m, k) => {
               if (m.gem === gem) {
                 this.misfilledMap1.set(k, {
@@ -1084,7 +1093,11 @@ export class BoardView extends Container {
           duration: 500,
           delay: i * 50,
           easing: 'easeInOutSine',
+          begin: () => {
+            lego.event.emit(SoundEvents.CrystalPickup);
+          },
           complete: () => {
+            lego.event.emit(SoundEvents.Bell);
             this.misfilledMap2.forEach((m, k) => {
               if (m.gem === gem) {
                 this.misfilledMap2.set(k, {

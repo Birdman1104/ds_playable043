@@ -22,6 +22,7 @@ export const SoundEvents = Object.freeze({
   Pop: 'SoundEventsPop',
   Theme: 'SoundEventsTheme',
   Click: 'SoundEventsClick',
+  CrystalPickup: 'SoundEventsCrystalPickup',
 });
 
 export const CTAEvents = Object.freeze({

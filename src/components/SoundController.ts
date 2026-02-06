@@ -6,8 +6,9 @@ import { CtaModelEvents, SoundModelEvents } from 'lego/events/ModelEvents';
 import { SoundState } from 'models/SoundModel';
 
 const VOLUMES = {
-  theme: 1.2,
-  bell: 0.4,
+  theme: 1,
+  bell: 0.3,
+  crystalPickup: 0.3,
 };
 
 const MAX_CONCURRENT_SOUNDS = 4;
@@ -16,7 +17,6 @@ class SoundControl {
   private sounds: { [key: string]: Howl };
   private isMutedFromIcon = false;
   private activePopSounds: Set<number> = new Set();
-  private activeBellSounds: Set<number> = new Set();
 
   public constructor() {
     this.sounds = {};
@@ -30,6 +30,7 @@ class SoundControl {
       .on(SoundEvents.Theme, this.playTheme, this)
       .on(SoundEvents.Pop, this.playPop, this)
       .on(SoundEvents.Bell, this.playBell, this)
+      .on(SoundEvents.CrystalPickup, this.playCrystalPickup, this)
       .on(CtaModelEvents.VisibleUpdate, this.playWin, this)
       .on(SoundModelEvents.StateUpdate, this.onSoundStateUpdate, this);
   }
@@ -45,11 +46,14 @@ class SoundControl {
   }
 
   private playClick(): void {
+    this.playTheme();
     this.sounds.tap?.play();
   }
 
   private playTheme(): void {
-    this.sounds.theme?.play();
+    if (!this.sounds.theme?.playing()) {
+      this.sounds.theme?.play();
+    }
   }
 
   private playWin(): void {
@@ -58,26 +62,26 @@ class SoundControl {
   }
 
   private playBell(): void {
+    this.playTheme();
+
     const sound = this.sounds.bell;
     if (!sound) return;
 
-    if (this.activeBellSounds.size >= MAX_CONCURRENT_SOUNDS) {
-      return;
-    }
+    sound.play();
+  }
 
-    const soundId = sound.play();
-    this.activeBellSounds.add(soundId);
+  private playCrystalPickup(): void {
+    this.playTheme();
 
-    sound.on(
-      'end',
-      () => {
-        this.activeBellSounds.delete(soundId);
-      },
-      soundId,
-    );
+    const sound = this.sounds.crystalPickup;
+    if (!sound) return;
+
+    sound.play();
   }
 
   private playPop(): void {
+    this.playTheme();
+
     const sound = this.sounds.pop;
     if (!sound) return;
 
@@ -111,7 +115,7 @@ class SoundControl {
   private unmute(): void {
     this.isMutedFromIcon = false;
     for (const [key, value] of Object.entries(this.sounds)) {
-      value.volume(1);
+      value.volume(VOLUMES[key as keyof typeof VOLUMES] ?? 1);
     }
   }
 
