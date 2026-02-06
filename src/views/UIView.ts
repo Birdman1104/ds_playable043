@@ -1,28 +1,87 @@
 import { lego } from '@armathai/lego';
-import { Sprite } from '@pixi/sprite';
+import { Texture } from '@pixi/core';
+import { Container } from '@pixi/display';
+import { Rectangle } from '@pixi/math';
+import { Emitter } from '@pixi/particle-emitter';
 import anime from 'animejs';
-import { SoundButton } from 'components/SoundButton';
-import { CTAEvents } from 'lego/events/MainEvents';
-import { GameModelEvents, SoundModelEvents } from 'lego/events/ModelEvents';
 import { PixiGrid } from 'libs/grid';
-import { GameState } from 'models/GameModel';
-import { SoundState } from 'models/SoundModel';
 import { getUIGridConfig } from '../configs/gridConfigs/UIViewGC';
-import { getPCtaSpriteConfig } from '../configs/SpriteConfig';
-import { makeSprite } from '../utils/Utils';
+import { PARTICLE_CONFIG } from '../configs/LootParticleConfig';
+import { MainGameEvents } from '../lego/events/MainEvents';
 
-export class UIView extends PixiGrid {
-  private pcta!: Sprite;
-  private soundButton: SoundButton | null = null;
-  private muted = false;
+const obj = {
+  value: 0,
+};
+class Wrapper extends Container {
+  private emitter1: Emitter | null = null;
+  private emitter2: Emitter | null = null;
+
+  private wrapper1: Container = new Container();
+  private wrapper2: Container = new Container();
 
   constructor() {
     super();
 
-    lego.event
-      .on(SoundModelEvents.StateUpdate, this.onSoundStateUpdate, this)
-      .on(GameModelEvents.StateUpdate, this.onGameStateUpdate, this);
-    this.build();
+    this.wrapper1.position.set(0, 0);
+    this.wrapper2.position.set(this.width, 0);
+    this.wrapper2.scale.set(-1, 1);
+
+    this.addChild(this.wrapper1);
+    this.addChild(this.wrapper2);
+  }
+
+  getBounds(): Rectangle {
+    return new Rectangle(0, 0, 1500, 1500);
+  }
+
+  public update(delta: number): void {
+    if (this.emitter1) {
+      this.emitter1.update(delta);
+    }
+    if (this.emitter2) {
+      this.emitter2.update(delta);
+    }
+  }
+
+  public start(): void {
+    let time = Date.now();
+
+    const config = PARTICLE_CONFIG;
+    const textureRandom = config.behaviors.find((b) => b.type === 'textureRandom');
+    if (textureRandom) {
+      textureRandom.config.textures = [
+        Texture.from('particle_1.png'),
+        Texture.from('particle_2.png'),
+        Texture.from('particle_3.png'),
+        Texture.from('particle_4.png'),
+      ];
+    }
+
+    this.emitter1 = new Emitter(this.wrapper1, config);
+    this.emitter2 = new Emitter(this.wrapper2, config);
+    anime({
+      targets: obj,
+      value: 1,
+      duration: 25000,
+      easing: 'linear',
+      update: () => {
+        this.update((Date.now() - time) * 0.001);
+        time = Date.now();
+      },
+    });
+  }
+}
+export class UIView extends PixiGrid {
+  private wrapper: Wrapper = new Wrapper();
+  constructor() {
+    super();
+
+    lego.event.on(MainGameEvents.ParticleStart, this.start, this);
+    this.attach('wrapper', this.wrapper);
+  }
+
+  private start(): void {
+    this.wrapper.start();
   }
 
   public getGridConfig(): ICellConfig {
@@ -31,39 +90,5 @@ export class UIView extends PixiGrid {
 
   public rebuild(config?: ICellConfig | undefined): void {
     super.rebuild(this.getGridConfig());
-  }
-
-  private build(): void {
-    // this.initPctaButton();
-    // this.initSoundButton();
-  }
-
-  private initPctaButton(): void {
-    this.pcta = makeSprite(getPCtaSpriteConfig());
-    this.pcta.eventMode = 'static';
-    this.pcta.on('pointerdown', () => {
-      lego.event.emit(CTAEvents.TakeToStore);
-    });
-    this.attach('pcta', this.pcta);
-  }
-
-  private initSoundButton(): void {
-    this.soundButton = new SoundButton();
-    this.attach('sound', this.soundButton);
-  }
-
-  private onSoundStateUpdate(soundState: SoundState): void {
-    this.soundButton?.mutedUpdate(soundState === SoundState.Off);
-  }
-
-  private onGameStateUpdate(state: GameState): void {
-    if (state === GameState.Win) {
-      anime({
-        targets: [this.soundButton, this.pcta],
-        alpha: 0,
-        duration: 100,
-        easing: 'easeInOutSine',
-      });
-    }
   }
 }

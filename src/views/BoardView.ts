@@ -1076,6 +1076,7 @@ export class BoardView extends Container {
                   this.stopHintTimer();
                   this.hideHint();
                   this.zoomOut().then(() => {
+                    lego.event.emit(MainGameEvents.ParticleStart);
                     anime({
                       targets: [this.backgroundLayer, this.gemsLayer],
                       alpha: 1,

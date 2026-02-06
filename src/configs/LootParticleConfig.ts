@@ -2,17 +2,18 @@ import { Resource, Texture } from '@pixi/core';
 
 export const PARTICLE_CONFIG = {
   lifetime: {
-    min: 0.15,
-    max: 0.35,
+    min: 7,
+    max: 10,
   },
-  frequency: 0.008,
-  emitterLifetime: 0,
-  maxParticles: 30,
+  frequency: 0.1,
+  emitterLifetime: 20,
+  maxParticles: 100,
   addAtBack: true,
   pos: {
     x: 0,
     y: 0,
   },
+  noRotation: false,
   behaviors: [
     {
       type: 'alpha',
@@ -21,11 +22,11 @@ export const PARTICLE_CONFIG = {
           list: [
             {
               time: 0,
-              value: 0.2,
+              value: 1,
             },
             {
               time: 1,
-              value: 0,
+              value: 0.4,
             },
           ],
         },
@@ -38,11 +39,11 @@ export const PARTICLE_CONFIG = {
           list: [
             {
               time: 0,
-              value: 100,
+              value: 300,
             },
             {
               time: 1,
-              value: 10,
+              value: 330,
             },
           ],
         },
@@ -59,11 +60,11 @@ export const PARTICLE_CONFIG = {
             },
             {
               time: 1,
-              value: 0.1,
+              value: 0.6,
             },
           ],
         },
-        minMult: 1,
+        minMult: 0.42,
       },
     },
     {
@@ -73,11 +74,11 @@ export const PARTICLE_CONFIG = {
           list: [
             {
               time: 0,
-              value: 'fb1010',
+              value: 'f060b6',
             },
             {
               time: 1,
-              value: 'f5b830',
+              value: 'f0e91a',
             },
           ],
         },
@@ -86,8 +87,8 @@ export const PARTICLE_CONFIG = {
     {
       type: 'rotationStatic',
       config: {
-        min: 90,
-        max: 90,
+        min: -265,
+        max: -332,
       },
     },
     {

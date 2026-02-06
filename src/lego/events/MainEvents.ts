@@ -8,6 +8,7 @@ export const MainGameEvents = Object.freeze({
   MainViewReady: 'MainGameEventsMainViewReady',
   MuteUpdate: 'MainGameEventsMuteUpdate',
   AdToCTA: 'MainGameEventsAdToCTA',
+  ParticleStart: 'MainGameEventsParticleStart',
 });
 
 export const UIEvents = Object.freeze({
