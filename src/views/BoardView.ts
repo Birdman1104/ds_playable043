@@ -945,6 +945,8 @@ export class BoardView extends Container {
 
   private onMisfilled1EmptyClick(cell: Sprite, correctColor: string): void {
     lego.event.emit(SoundEvents.Click);
+
+    if (correctColor !== this.activeColor) return;
     if (!this.activeColor || this.animationInProgress) return;
     this.restartHint();
 
@@ -1063,6 +1065,8 @@ export class BoardView extends Container {
 
   private onMisfilled2EmptyClick(cell: Sprite, correctColor: string): void {
     lego.event.emit(SoundEvents.Click);
+    if (correctColor !== this.activeColor) return;
+
     if (!this.activeColor || this.animationInProgress) return;
     this.restartHint();
 
