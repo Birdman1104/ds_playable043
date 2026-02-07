@@ -1,6 +1,9 @@
 const sortByX = (array: { x: number; y: number }[]): { x: number; y: number }[] => {
   return [...array].sort((a, b) => a.x - b.x);
 };
+const sortByY = (array: { x: number; y: number }[]): { x: number; y: number }[] => {
+  return [...array].sort((a, b) => a.y - b.y);
+};
 export const MISFILLED1: { x: number; y: number }[] = sortByX([
   // background - black
   // filled wrong gem - orange
@@ -281,7 +284,7 @@ export const MISFILLED10: { x: number; y: number }[] = sortByX([
   { x: 18, y: 22 },
 ]);
 
-export const MISFILLED11: { x: number; y: number }[] = sortByX([
+export const MISFILLED11: { x: number; y: number }[] = sortByY([
   // background - brown
   // filled wrong gem - orange
   // correct gem - brown
@@ -299,6 +302,7 @@ export const MISFILLED11: { x: number; y: number }[] = sortByX([
   { x: 4, y: 24 },
   { x: 4, y: 25 },
   { x: 3, y: 25 },
+  { x: 1, y: 27 },
   { x: 2, y: 25 },
   { x: 2, y: 26 },
   { x: 3, y: 26 },
@@ -306,7 +310,6 @@ export const MISFILLED11: { x: number; y: number }[] = sortByX([
   { x: 4, y: 27 },
   { x: 3, y: 27 },
   { x: 2, y: 27 },
-  { x: 1, y: 27 },
 ]);
 
 export const MISFILLED12: { x: number; y: number }[] = sortByX([

@@ -75,6 +75,10 @@ const outlineProperties = {
   alpha: 1,
 };
 
+const GEM_DURATION = 150;
+const GEM_EASING = 'easeInCubic';
+const GEM_DELAY = 15;
+
 export class BoardView extends Container {
   private boardRoot = new Container();
   private backgroundLayer = new Container();
@@ -370,9 +374,9 @@ export class BoardView extends Container {
         targets: gem,
         x: this.stack1.x + s.x,
         y: this.stack1.y + s.y,
-        duration: 300,
-        delay: i * 50,
-        easing: 'easeInOutSine',
+        duration: GEM_DURATION,
+        delay: i * GEM_DELAY,
+        easing: GEM_EASING,
         begin: () => {
           lego.event.emit(SoundEvents.CrystalPickup);
         },
@@ -415,9 +419,9 @@ export class BoardView extends Container {
         targets: gem,
         x: this.stack2.x + s.x,
         y: this.stack2.y + s.y,
-        duration: 300,
-        delay: i * 10,
-        easing: 'easeInOutSine',
+        duration: GEM_DURATION,
+        delay: i * GEM_DELAY,
+        easing: GEM_EASING,
         begin: () => {
           lego.event.emit(SoundEvents.CrystalPickup);
         },
@@ -908,18 +912,6 @@ export class BoardView extends Container {
 
     this.restartHint();
 
-    if (this.firstFromFirst) {
-      this.firstFromFirst = false;
-      anime({
-        targets: this.stack1Overlay,
-        alpha: 0.7,
-        duration: 400,
-        loop: 6,
-        direction: 'alternate',
-        easing: 'easeInOutSine',
-      });
-    }
-
     if (this.activeColor) {
       this.putGemBack(this.chosenGems);
       this.chosenGems = [];
@@ -974,9 +966,9 @@ export class BoardView extends Container {
           targets: gem,
           x: c.x,
           y: c.y,
-          duration: 400,
-          delay: i * 50,
-          easing: 'easeInOutSine',
+          duration: GEM_DURATION,
+          delay: i * GEM_DELAY,
+          easing: GEM_EASING,
           begin: () => {
             lego.event.emit(SoundEvents.CrystalPickup);
           },
@@ -1094,9 +1086,9 @@ export class BoardView extends Container {
           targets: gem,
           x: c.x,
           y: c.y,
-          duration: 500,
-          delay: i * 50,
-          easing: 'easeInOutSine',
+          duration: GEM_DURATION,
+          delay: i * GEM_DELAY,
+          easing: GEM_EASING,
           begin: () => {
             lego.event.emit(SoundEvents.CrystalPickup);
           },
