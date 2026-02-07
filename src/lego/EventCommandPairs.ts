@@ -1,4 +1,5 @@
 import { lego } from '@armathai/lego';
+import { SoundEvents } from '../components/SoundController';
 import {
   onAdStatusUpdateCommand,
   onFocusChangeCommand,
@@ -9,7 +10,7 @@ import {
 } from './commands/AdCommands';
 import { onFirstClickCommand, onGameModelStateUpdateCommand } from './commands/GameCommands';
 import { onMainViewReadyCommand, setAdToCTACommand } from './commands/MainCommands';
-import { CTAEvents, MainGameEvents, SoundEvents, UIEvents, WindowEvent } from './events/MainEvents';
+import { CTAEvents, MainGameEvents, UIEvents, WindowEvent } from './events/MainEvents';
 import { AdModelEvents, GameModelEvents } from './events/ModelEvents';
 
 export const mapCommands = () => {

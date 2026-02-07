@@ -5,6 +5,7 @@ import { OutlineFilter } from '@pixi/filter-outline';
 import { Point, Rectangle } from '@pixi/math';
 import { Sprite } from '@pixi/sprite';
 import anime from 'animejs';
+import { SoundEvents } from '../components/SoundController';
 import {
   LEVEL_CONFIG,
   MISFILLED1,
@@ -23,7 +24,7 @@ import {
   MISFILLED9,
 } from '../configs/LevelConfig';
 import { getCongratsSpriteConfig, getHandSpriteConfig } from '../configs/SpriteConfig';
-import { MainGameEvents, SoundEvents } from '../lego/events/MainEvents';
+import { MainGameEvents } from '../lego/events/MainEvents';
 import { delayRunnable, makeSprite } from '../utils/Utils';
 
 const CELL_SIZE = 133;
@@ -378,10 +379,10 @@ export class BoardView extends Container {
         delay: i * GEM_DELAY,
         easing: GEM_EASING,
         begin: () => {
-          lego.event.emit(SoundEvents.CrystalPickup);
+          // lego.event.emit(SoundEvents.CrystalPickup);
         },
         complete: () => {
-          lego.event.emit(SoundEvents.Bell);
+          // lego.event.emit(SoundEvents.Bell);
           gem.scale.set(1, 1);
           if (i === this.chosenGems.length - 1) {
             this.chosenGems.forEach((gem, i) => {
@@ -423,10 +424,10 @@ export class BoardView extends Container {
         delay: i * GEM_DELAY,
         easing: GEM_EASING,
         begin: () => {
-          lego.event.emit(SoundEvents.CrystalPickup);
+          // lego.event.emit(SoundEvents.CrystalPickup);
         },
         complete: () => {
-          lego.event.emit(SoundEvents.Bell);
+          // lego.event.emit(SoundEvents.Bell);
           gem.scale.set(1, 1);
           if (i === this.chosenGems.length - 1) {
             this.chosenGems.forEach((gem) => {
@@ -970,10 +971,10 @@ export class BoardView extends Container {
           delay: i * GEM_DELAY,
           easing: GEM_EASING,
           begin: () => {
-            lego.event.emit(SoundEvents.CrystalPickup);
+            // lego.event.emit(SoundEvents.CrystalPickup);
           },
           complete: () => {
-            lego.event.emit(SoundEvents.Bell);
+            // lego.event.emit(SoundEvents.Bell);
             this.misfilledMap1.forEach((m, k) => {
               if (m.gem === gem) {
                 this.misfilledMap1.set(k, {
@@ -1090,10 +1091,10 @@ export class BoardView extends Container {
           delay: i * GEM_DELAY,
           easing: GEM_EASING,
           begin: () => {
-            lego.event.emit(SoundEvents.CrystalPickup);
+            // lego.event.emit(SoundEvents.CrystalPickup);
           },
           complete: () => {
-            lego.event.emit(SoundEvents.Bell);
+            // lego.event.emit(SoundEvents.Bell);
             this.misfilledMap2.forEach((m, k) => {
               if (m.gem === gem) {
                 this.misfilledMap2.set(k, {
@@ -1244,6 +1245,9 @@ export class BoardView extends Container {
       },
       complete: () => {
         this.canClick = true;
+        delayRunnable(0.5, () => {
+          this.jumpText();
+        });
         this.startHintTimer();
       },
     });
@@ -1563,6 +1567,7 @@ export class BoardView extends Container {
 
   private jumpText(): void {
     this.canClick = false;
+    lego.event.emit(SoundEvents.Text);
     anime({
       targets: this.congratsText,
       y: 4000,

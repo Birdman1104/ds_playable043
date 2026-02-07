@@ -15,16 +15,6 @@ export const UIEvents = Object.freeze({
   SoundButtonClick: 'UIEventsSoundButtonClick',
 });
 
-export const SoundEvents = Object.freeze({
-  Mute: 'SoundEventsMute',
-  Unmute: 'SoundEventsUnmute',
-  Bell: 'SoundEventsBell',
-  Pop: 'SoundEventsPop',
-  Theme: 'SoundEventsTheme',
-  Click: 'SoundEventsClick',
-  CrystalPickup: 'SoundEventsCrystalPickup',
-});
-
 export const CTAEvents = Object.freeze({
   TakeToStore: 'CTAEventsTakeToStore',
 });

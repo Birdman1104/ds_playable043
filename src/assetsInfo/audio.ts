@@ -1,9 +1,11 @@
 // @ts-nocheck
 
-import bell from '../assets/sounds/bell.mp3'; 
-import crystalPickup from '../assets/sounds/crystalPickup.mp3'; 
-import pop from '../assets/sounds/pop.mp3'; 
-import tap from '../assets/sounds/tap.wav'; 
+import click from '../assets/sounds/click.mp3'; 
+import emptyClick from '../assets/sounds/emptyClick.mp3'; 
+import gemClick from '../assets/sounds/gemClick.mp3'; 
+import stackClick from '../assets/sounds/stackClick.mp3'; 
+import textAudio from '../assets/sounds/textAudio.mp3'; 
 import theme from '../assets/sounds/theme.mp3'; 
-import win from '../assets/sounds/win.wav'; 
-export const SOUNDS = [{name: 'bell', path:bell,},{name: 'crystalPickup', path:crystalPickup,},{name: 'pop', path:pop,},{name: 'tap', path:tap,},{name: 'theme', path:theme,},{name: 'win', path:win,},]
+import win from '../assets/sounds/win.mp3'; 
+import zoomOutFinal from '../assets/sounds/zoomOutFinal.mp3'; 
+export const SOUNDS = [{name: 'click', path:click,},{name: 'emptyClick', path:emptyClick,},{name: 'gemClick', path:gemClick,},{name: 'stackClick', path:stackClick,},{name: 'textAudio', path:textAudio,},{name: 'theme', path:theme,},{name: 'win', path:win,},{name: 'zoomOutFinal', path:zoomOutFinal,},]

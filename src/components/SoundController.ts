@@ -1,7 +1,7 @@
 import { lego } from '@armathai/lego';
 import { SOUNDS } from 'assetsInfo/audio';
 import { Howl } from 'howler';
-import { MainGameEvents, SoundEvents } from 'lego/events/MainEvents';
+import { MainGameEvents } from 'lego/events/MainEvents';
 import { CtaModelEvents, SoundModelEvents } from 'lego/events/ModelEvents';
 import { SoundState } from 'models/SoundModel';
 
@@ -13,6 +13,16 @@ const VOLUMES = {
 
 const MAX_CONCURRENT_SOUNDS = 4;
 
+export const SoundEvents = Object.freeze({
+  Mute: 'SoundEventsMute',
+  Unmute: 'SoundEventsUnmute',
+
+  Click: 'SoundEventsClick',
+  Theme: 'SoundEventsTheme',
+  Text: 'SoundEventsText',
+
+  Pop: 'SoundEventsPop',
+});
 class SoundControl {
   private sounds: { [key: string]: Howl };
   private isMutedFromIcon = false;
@@ -26,23 +36,12 @@ class SoundControl {
       .on(SoundEvents.Mute, this.mute, this)
       .on(SoundEvents.Unmute, this.unmute, this)
       .on(MainGameEvents.MuteUpdate, this.focusChange, this)
+      .on(CtaModelEvents.VisibleUpdate, this.playWin, this)
+      .on(SoundModelEvents.StateUpdate, this.onSoundStateUpdate, this)
+
       .on(SoundEvents.Click, this.playClick, this)
       .on(SoundEvents.Theme, this.playTheme, this)
-      .on(SoundEvents.Pop, this.playPop, this)
-      .on(SoundEvents.Bell, this.playBell, this)
-      .on(SoundEvents.CrystalPickup, this.playCrystalPickup, this)
-      .on(CtaModelEvents.VisibleUpdate, this.playWin, this)
-      .on(SoundModelEvents.StateUpdate, this.onSoundStateUpdate, this);
-  }
-
-  public loadSounds(): void {
-    SOUNDS.forEach(({ name, path }) => {
-      this.sounds[name] = new Howl({
-        src: path,
-        volume: VOLUMES[name as keyof typeof VOLUMES] ?? 1,
-        loop: name === 'theme',
-      });
-    });
+      .on(SoundEvents.Text, this.playText, this);
   }
 
   private playClick(): void {
@@ -56,27 +55,13 @@ class SoundControl {
     }
   }
 
+  private playText(): void {
+    this.sounds.textAudio?.play();
+  }
+
   private playWin(): void {
     this.sounds.theme?.stop();
     this.sounds.win?.play();
-  }
-
-  private playBell(): void {
-    this.playTheme();
-
-    const sound = this.sounds.bell;
-    if (!sound) return;
-
-    sound.play();
-  }
-
-  private playCrystalPickup(): void {
-    this.playTheme();
-
-    const sound = this.sounds.crystalPickup;
-    if (!sound) return;
-
-    sound.play();
   }
 
   private playPop(): void {
@@ -124,6 +109,16 @@ class SoundControl {
     for (const [key, value] of Object.entries(this.sounds)) {
       value.volume(outOfFocus ? 0 : (VOLUMES[key as keyof typeof VOLUMES] ?? 1));
     }
+  }
+
+  public loadSounds(): void {
+    SOUNDS.forEach(({ name, path }) => {
+      this.sounds[name] = new Howl({
+        src: path,
+        volume: VOLUMES[name as keyof typeof VOLUMES] ?? 1,
+        loop: name === 'theme',
+      });
+    });
   }
 }
 

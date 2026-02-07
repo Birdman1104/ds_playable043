@@ -57,7 +57,7 @@ export const PARTICLE_CONFIG = {
           list: [
             {
               time: 0,
-              value: 0.5,
+              value: 0.3,
             },
             {
               time: 1,

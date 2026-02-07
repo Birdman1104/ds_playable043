@@ -6,9 +6,10 @@ import anime from 'animejs';
 import { AdModelEvents, GameModelEvents, SoundModelEvents } from 'lego/events/ModelEvents';
 import { PixiGrid } from 'libs/grid';
 import { GameState } from 'models/GameModel';
+import { SoundEvents } from '../components/SoundController';
 import { getForegroundGridConfig } from '../configs/gridConfigs/ForegroundViewGC';
 import { getLogoSpriteConfig } from '../configs/SpriteConfig';
-import { CTAEvents, SoundEvents } from '../lego/events/MainEvents';
+import { CTAEvents } from '../lego/events/MainEvents';
 import { SoundModel, SoundState } from '../models/SoundModel';
 import { makeSprite } from '../utils/Utils';
 
