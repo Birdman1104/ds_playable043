@@ -7,7 +7,7 @@ import anime from 'animejs';
 import { PixiGrid } from 'libs/grid';
 import { getUIGridConfig } from '../configs/gridConfigs/UIViewGC';
 import { PARTICLE_CONFIG } from '../configs/LootParticleConfig';
-import { MainGameEvents } from '../lego/events/MainEvents';
+import { CtaModelEvents } from '../lego/events/ModelEvents';
 
 const obj = {
   value: 0,
@@ -76,11 +76,12 @@ export class UIView extends PixiGrid {
   constructor() {
     super();
 
-    lego.event.on(MainGameEvents.ParticleStart, this.start, this);
+    lego.event.on(CtaModelEvents.VisibleUpdate, this.start, this);
     this.attach('wrapper', this.wrapper);
   }
 
-  private start(): void {
+  private start(visible: boolean): void {
+    if (!visible) return;
     this.wrapper.start();
   }
 

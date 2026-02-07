@@ -18,15 +18,19 @@ export const SoundEvents = Object.freeze({
   Unmute: 'SoundEventsUnmute',
 
   Click: 'SoundEventsClick',
+  GemClick: 'SoundEventsGemClick',
+  StackClick: 'SoundEventsStackClick',
+  EmptyClick: 'SoundEventsEmptyClick',
   Theme: 'SoundEventsTheme',
   Text: 'SoundEventsText',
+
+  Zoom: 'SoundEventsZoom',
 
   Pop: 'SoundEventsPop',
 });
 class SoundControl {
   private sounds: { [key: string]: Howl };
   private isMutedFromIcon = false;
-  private activePopSounds: Set<number> = new Set();
 
   public constructor() {
     this.sounds = {};
@@ -40,8 +44,16 @@ class SoundControl {
       .on(SoundModelEvents.StateUpdate, this.onSoundStateUpdate, this)
 
       .on(SoundEvents.Click, this.playClick, this)
+      .on(SoundEvents.GemClick, this.playGemClick, this)
+      .on(SoundEvents.StackClick, this.playStackClick, this)
       .on(SoundEvents.Theme, this.playTheme, this)
-      .on(SoundEvents.Text, this.playText, this);
+      .on(SoundEvents.Text, this.playText, this)
+      .on(SoundEvents.EmptyClick, this.playEmptyClick, this)
+      .on(SoundEvents.Zoom, this.playZoom, this);
+  }
+
+  private playZoom(): void {
+    this.sounds.zoom?.play();
   }
 
   private playClick(): void {
@@ -59,31 +71,21 @@ class SoundControl {
     this.sounds.textAudio?.play();
   }
 
+  private playGemClick(): void {
+    this.sounds.gemClick?.play();
+  }
+
+  private playStackClick(): void {
+    this.sounds.stackClick?.play();
+  }
+
+  private playEmptyClick(): void {
+    this.sounds.emptyClick?.play();
+  }
+
   private playWin(): void {
     this.sounds.theme?.stop();
     this.sounds.win?.play();
-  }
-
-  private playPop(): void {
-    this.playTheme();
-
-    const sound = this.sounds.pop;
-    if (!sound) return;
-
-    if (this.activePopSounds.size >= MAX_CONCURRENT_SOUNDS) {
-      return;
-    }
-
-    const soundId = sound.play();
-    this.activePopSounds.add(soundId);
-
-    sound.on(
-      'end',
-      () => {
-        this.activePopSounds.delete(soundId);
-      },
-      soundId,
-    );
   }
 
   private onSoundStateUpdate(state: SoundState): void {

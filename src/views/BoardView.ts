@@ -78,7 +78,7 @@ const outlineProperties = {
 
 const GEM_DURATION = 150;
 const GEM_EASING = 'easeInCubic';
-const GEM_DELAY = 15;
+const GEM_DELAY = 50;
 
 export class BoardView extends Container {
   private boardRoot = new Container();
@@ -347,6 +347,7 @@ export class BoardView extends Container {
   private onStack1Click(): void {
     lego.event.emit(SoundEvents.Click);
     if (!this.activeColor || this.animationInProgress || this.stack1Filled) return;
+    lego.event.emit(SoundEvents.StackClick);
     this.restartHint();
     anime.remove(this.stack1Overlay);
     this.stack1Overlay.alpha = 0;
@@ -356,6 +357,7 @@ export class BoardView extends Container {
   private onStack2Click(): void {
     lego.event.emit(SoundEvents.Click);
     if (!this.activeColor || this.animationInProgress || this.stack2Filled) return;
+    lego.event.emit(SoundEvents.StackClick);
     this.restartHint();
     anime.remove(this.stack2Overlay);
     this.stack2Overlay.alpha = 0;
@@ -378,11 +380,7 @@ export class BoardView extends Container {
         duration: GEM_DURATION,
         delay: i * GEM_DELAY,
         easing: GEM_EASING,
-        begin: () => {
-          // lego.event.emit(SoundEvents.CrystalPickup);
-        },
         complete: () => {
-          // lego.event.emit(SoundEvents.Bell);
           gem.scale.set(1, 1);
           if (i === this.chosenGems.length - 1) {
             this.chosenGems.forEach((gem, i) => {
@@ -423,11 +421,7 @@ export class BoardView extends Container {
         duration: GEM_DURATION,
         delay: i * GEM_DELAY,
         easing: GEM_EASING,
-        begin: () => {
-          // lego.event.emit(SoundEvents.CrystalPickup);
-        },
         complete: () => {
-          // lego.event.emit(SoundEvents.Bell);
           gem.scale.set(1, 1);
           if (i === this.chosenGems.length - 1) {
             this.chosenGems.forEach((gem) => {
@@ -885,6 +879,7 @@ export class BoardView extends Container {
 
   private highlightGems(gems: Sprite[] | null, layer: Container): void {
     if (!gems) return;
+    lego.event.emit(SoundEvents.GemClick);
     gems.forEach((gem, i) => {
       layer.addChild(gem);
       anime({
@@ -937,10 +932,9 @@ export class BoardView extends Container {
   }
 
   private onMisfilled1EmptyClick(cell: Sprite, correctColor: string): void {
-    lego.event.emit(SoundEvents.Click);
-
     if (correctColor !== this.activeColor) return;
     if (!this.activeColor || this.animationInProgress) return;
+    lego.event.emit(SoundEvents.EmptyClick);
     this.restartHint();
 
     const cellsGroup = [
@@ -1057,10 +1051,9 @@ export class BoardView extends Container {
   }
 
   private onMisfilled2EmptyClick(cell: Sprite, correctColor: string): void {
-    lego.event.emit(SoundEvents.Click);
     if (correctColor !== this.activeColor) return;
-
     if (!this.activeColor || this.animationInProgress) return;
+    lego.event.emit(SoundEvents.EmptyClick);
     this.restartHint();
 
     const cellsGroup = [
@@ -1155,7 +1148,6 @@ export class BoardView extends Container {
                   this.stopHintTimer();
                   this.hideHint();
                   this.zoomOut().then(() => {
-                    lego.event.emit(MainGameEvents.ParticleStart);
                     anime({
                       targets: [this.backgroundLayer, this.gemsLayer],
                       alpha: 1,
@@ -1230,6 +1222,7 @@ export class BoardView extends Container {
       x: this.boardRoot.x,
       y: this.boardRoot.y,
     };
+    lego.event.emit(SoundEvents.Zoom);
 
     anime({
       targets: animTarget,
@@ -1245,9 +1238,6 @@ export class BoardView extends Container {
       },
       complete: () => {
         this.canClick = true;
-        delayRunnable(0.5, () => {
-          this.jumpText();
-        });
         this.startHintTimer();
       },
     });
@@ -1281,7 +1271,7 @@ export class BoardView extends Container {
       x: this.boardRoot.x,
       y: this.boardRoot.y,
     };
-
+    lego.event.emit(SoundEvents.Zoom);
     anime({
       targets: animTarget,
       scaleX: ZOOM_SCALE,
@@ -1325,6 +1315,7 @@ export class BoardView extends Container {
     };
 
     return new Promise((resolve) => {
+      delayRunnable(2, () => lego.event.emit(SoundEvents.Zoom));
       anime({
         targets: animTarget,
         scaleX: 1,
