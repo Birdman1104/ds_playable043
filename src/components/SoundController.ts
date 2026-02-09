@@ -11,8 +11,6 @@ const VOLUMES = {
   crystalPickup: 0.3,
 };
 
-const MAX_CONCURRENT_SOUNDS = 4;
-
 export const SoundEvents = Object.freeze({
   Mute: 'SoundEventsMute',
   Unmute: 'SoundEventsUnmute',

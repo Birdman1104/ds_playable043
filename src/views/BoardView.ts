@@ -130,9 +130,14 @@ export class BoardView extends Container {
 
   private correctCounter = 0;
   private misfills1 = 7;
-  private misfills2 = 14;
+  private misfills2 = 7;
   private firstFromFirst = true;
   private firstFromSecond = true;
+
+  private activeSegment: 1 | 2 | null = null;
+  private segment1Completed = false;
+  private segment2Completed = false;
+  private isInitialSelectionPhase = true;
 
   private gemsGroup21: (Sprite | null)[] = [];
   private gemsGroup22: (Sprite | null)[] = [];
@@ -204,22 +209,11 @@ export class BoardView extends Container {
     this.misfilledLayer2Background.filters = [this.outlineFilter2];
     this.backgroundLayer.filters = [new OutlineFilter(3, 0xffffff, 0.3)];
 
-    anime({
-      targets: outlineProperties,
-      alpha: 0,
-      duration: (INIT_DELAY * 1000) / 4,
-      easing: 'easeInOutSine',
-      direction: 'alternate',
-      loop: 5,
-      update: () => {
-        this.setOutlineAlpha(outlineProperties.alpha);
-      },
-      complete: () => {
-        this.misfilledLayer1Background.filters = [];
-        this.misfilledLayer2Background.filters = [];
-        this.zoomIntoSegment1();
-      },
-    });
+    this.backgroundLayer.alpha = 0.7;
+    this.gemsLayer.alpha = 0.7;
+    this.startHandMovementBetweenSegments();
+    this.animateSegmentsOutline();
+    this.setupSegmentClickHandlers();
   }
 
   public getBounds(): Rectangle {
@@ -346,7 +340,14 @@ export class BoardView extends Container {
 
   private onStack1Click(): void {
     lego.event.emit(SoundEvents.Click);
-    if (!this.activeColor || this.animationInProgress || this.stack1Filled) return;
+    if (
+      !this.activeColor ||
+      this.animationInProgress ||
+      this.stack1Filled ||
+      this.isInitialSelectionPhase ||
+      this.activeSegment !== 1
+    )
+      return;
     lego.event.emit(SoundEvents.StackClick);
     this.restartHint();
     anime.remove(this.stack1Overlay);
@@ -356,7 +357,14 @@ export class BoardView extends Container {
 
   private onStack2Click(): void {
     lego.event.emit(SoundEvents.Click);
-    if (!this.activeColor || this.animationInProgress || this.stack2Filled) return;
+    if (
+      !this.activeColor ||
+      this.animationInProgress ||
+      this.stack2Filled ||
+      this.isInitialSelectionPhase ||
+      this.activeSegment !== 2
+    )
+      return;
     lego.event.emit(SoundEvents.StackClick);
     this.restartHint();
     anime.remove(this.stack2Overlay);
@@ -816,7 +824,8 @@ export class BoardView extends Container {
 
   private onMisfilled1GemClick(gemo: Sprite, color: string): void {
     lego.event.emit(SoundEvents.Click);
-    if (this.animationInProgress) return;
+    if (this.animationInProgress || this.isInitialSelectionPhase || this.activeSegment !== 1)
+      return;
 
     if (this.chosenGems.find((gem) => gem === gemo)) {
       return;
@@ -901,7 +910,8 @@ export class BoardView extends Container {
 
   private onMisfilled2GemClick(gemo: Sprite, color: string): void {
     lego.event.emit(SoundEvents.Click);
-    if (this.animationInProgress) return;
+    if (this.animationInProgress || this.isInitialSelectionPhase || this.activeSegment !== 2)
+      return;
     if (this.chosenGems.find((gem) => gem === gemo)) {
       return;
     }
@@ -933,7 +943,13 @@ export class BoardView extends Container {
 
   private onMisfilled1EmptyClick(cell: Sprite, correctColor: string): void {
     if (correctColor !== this.activeColor) return;
-    if (!this.activeColor || this.animationInProgress) return;
+    if (
+      !this.activeColor ||
+      this.animationInProgress ||
+      this.isInitialSelectionPhase ||
+      this.activeSegment !== 1
+    )
+      return;
     lego.event.emit(SoundEvents.EmptyClick);
     this.restartHint();
 
@@ -1023,24 +1039,38 @@ export class BoardView extends Container {
 
               if (correctColor === activeColorCopy) {
                 this.updateCorrectCounter();
-                if (this.correctCounter === this.misfills1) {
+                const realCorrectCounter = this.segment2Completed
+                  ? this.correctCounter - this.misfills2
+                  : this.correctCounter;
+                if (realCorrectCounter === this.misfills1 && !this.segment1Completed) {
+                  this.segment1Completed = true;
                   this.stopHintTimer();
                   this.hideHint();
-                  this.zoomOut().then(() => {
-                    anime({
-                      targets: [this.misfilledLayer1, this.stack1],
-                      alpha: 0,
-                      duration: ZOOM_DURATION / 2,
-                      easing: 'easeInOutQuad',
+
+                  if (!this.segment2Completed) {
+                    // Zoom out and zoom into the other segment
+                    this.zoomOut().then(() => {
+                      anime({
+                        targets: [this.misfilledLayer1, this.stack1],
+                        alpha: 0,
+                        duration: ZOOM_DURATION / 2,
+                        easing: 'easeInOutQuad',
+                      });
+                      anime({
+                        targets: [this.misfilledLayer2, this.stack2],
+                        alpha: 1,
+                        duration: ZOOM_DURATION / 2,
+                        easing: 'easeInOutQuad',
+                        complete: () => {
+                          this.activeSegment = 2;
+                          this.zoomIntoSegment2();
+                        },
+                      });
                     });
-                    anime({
-                      targets: [this.misfilledLayer2, this.stack2],
-                      alpha: 1,
-                      duration: ZOOM_DURATION / 2,
-                      easing: 'easeInOutQuad',
-                      complete: () => this.zoomIntoSegment2(),
-                    });
-                  });
+                  } else {
+                    // Both segments completed, end the game
+                    this.endGame();
+                  }
                 }
               }
             }
@@ -1052,7 +1082,13 @@ export class BoardView extends Container {
 
   private onMisfilled2EmptyClick(cell: Sprite, correctColor: string): void {
     if (correctColor !== this.activeColor) return;
-    if (!this.activeColor || this.animationInProgress) return;
+    if (
+      !this.activeColor ||
+      this.animationInProgress ||
+      this.isInitialSelectionPhase ||
+      this.activeSegment !== 2
+    )
+      return;
     lego.event.emit(SoundEvents.EmptyClick);
     this.restartHint();
 
@@ -1083,11 +1119,7 @@ export class BoardView extends Container {
           duration: GEM_DURATION,
           delay: i * GEM_DELAY,
           easing: GEM_EASING,
-          begin: () => {
-            // lego.event.emit(SoundEvents.CrystalPickup);
-          },
           complete: () => {
-            // lego.event.emit(SoundEvents.Bell);
             this.misfilledMap2.forEach((m, k) => {
               if (m.gem === gem) {
                 this.misfilledMap2.set(k, {
@@ -1144,68 +1176,39 @@ export class BoardView extends Container {
 
               if (correctColor === activeColorCopy) {
                 this.updateCorrectCounter();
-                if (this.correctCounter === this.misfills2) {
+                const realCorrectCounter = this.segment1Completed
+                  ? this.correctCounter - this.misfills1
+                  : this.correctCounter;
+
+                if (realCorrectCounter === this.misfills2 && !this.segment2Completed) {
+                  this.segment2Completed = true;
                   this.stopHintTimer();
                   this.hideHint();
-                  this.zoomOut().then(() => {
-                    anime({
-                      targets: [this.backgroundLayer, this.gemsLayer],
-                      alpha: 1,
-                      duration: ZOOM_DURATION,
-                      easing: 'easeInOutQuad',
-                    });
-                    anime({
-                      targets: [this.misfilledLayer2, this.stack2],
-                      alpha: 0,
-                      duration: ZOOM_DURATION,
-                      easing: 'easeInOutQuad',
-                      complete: () => {
-                        [
-                          this.gemsGroup11,
-                          this.gemsGroup12,
-                          this.gemsGroup13,
-                          this.gemsGroup14,
-                          this.gemsGroup15,
-                          this.gemsGroup16,
-                          this.gemsGroup17,
-                          this.gemsGroup21,
-                          this.gemsGroup22,
-                          this.gemsGroup23,
-                          this.gemsGroup24,
-                          this.gemsGroup25,
-                          this.gemsGroup26,
-                          this.gemsGroup27,
-                          this.cellsGroup11,
-                          this.cellsGroup12,
-                          this.cellsGroup13,
-                          this.cellsGroup14,
-                          this.cellsGroup15,
-                          this.cellsGroup16,
-                          this.cellsGroup17,
-                          this.cellsGroup21,
-                          this.cellsGroup22,
-                          this.cellsGroup23,
-                          this.cellsGroup24,
-                          this.cellsGroup25,
-                          this.cellsGroup26,
-                          this.cellsGroup27,
-                        ].forEach((group) => {
-                          group.forEach((sprite) => sprite?.destroy());
-                        });
-                        this.misfilledMap1.clear();
-                        this.misfilledMap2.clear();
-                        this.stack1Map.clear();
-                        this.stack2Map.clear();
-                        this.chosenGems = [];
-                        this.activeColor = '';
-                        this.correctCounter = 0;
 
-                        delayRunnable(0.8, () => {
-                          lego.event.emit(MainGameEvents.AdToCTA);
-                        });
-                      },
+                  if (!this.segment1Completed) {
+                    // Zoom out and zoom into the other segment
+                    this.zoomOut().then(() => {
+                      anime({
+                        targets: [this.misfilledLayer2, this.stack2],
+                        alpha: 0,
+                        duration: ZOOM_DURATION / 2,
+                        easing: 'easeInOutQuad',
+                      });
+                      anime({
+                        targets: [this.misfilledLayer1, this.stack1],
+                        alpha: 1,
+                        duration: ZOOM_DURATION / 2,
+                        easing: 'easeInOutQuad',
+                        complete: () => {
+                          this.activeSegment = 1;
+                          this.zoomIntoSegment1();
+                        },
+                      });
                     });
-                  });
+                  } else {
+                    // Both segments completed, end the game
+                    this.endGame();
+                  }
                 }
               }
             }
@@ -1322,7 +1325,7 @@ export class BoardView extends Container {
         scaleY: 1,
         x: 500,
         y: 0,
-        delay: 2000,
+        delay: 1000,
         duration: ZOOM_DURATION,
         easing: 'easeInOutQuad',
         update: () => {
@@ -1335,12 +1338,23 @@ export class BoardView extends Container {
   }
 
   private getHintPositions(): Point[] {
-    const isSegment1 = this.correctCounter < this.misfills1;
+    // Don't show hints during initial selection phase
+    if (this.isInitialSelectionPhase || this.activeSegment === null) {
+      return [new Point(0, 0), new Point(0, 0)];
+    }
+
+    const isSegment1 = this.activeSegment === 1;
     const misfilledMap = isSegment1 ? this.misfilledMap1 : this.misfilledMap2;
     const stackMap = isSegment1 ? this.stack1Map : this.stack2Map;
     const stackFilled = isSegment1 ? this.stack1Filled : this.stack2Filled;
     const stackSlots = isSegment1 ? this.stack1Slots : this.stack2Slots;
     const stackContainer = isSegment1 ? this.stack1 : this.stack2;
+
+    // Calculate correct counter for current segment
+    const segmentCorrectCounter = isSegment1
+      ? this.correctCounter
+      : this.correctCounter - this.misfills1;
+    const segmentMisfills = isSegment1 ? this.misfills1 : this.misfills2;
 
     const isGemInteractive = (gem: Sprite | null): boolean => {
       return gem !== null && gem.eventMode !== 'none';
@@ -1622,5 +1636,239 @@ export class BoardView extends Container {
 
   public getOutlineAlpha2(): number {
     return this.outlineFilter2?.alpha ?? 0;
+  }
+
+  public animateSegmentsOutline(): void {
+    anime({
+      targets: outlineProperties,
+      alpha: 0,
+      duration: 500,
+      easing: 'easeInOutSine',
+      direction: 'alternate',
+      loop: true,
+      endDelay: 500,
+      update: () => {
+        this.setOutlineAlpha(outlineProperties.alpha);
+      },
+      complete: () => {
+        this.misfilledLayer1Background.filters = [];
+        this.misfilledLayer2Background.filters = [];
+      },
+    });
+  }
+
+  private setupSegmentClickHandlers(): void {
+    // Make segment backgrounds clickable
+    this.misfilledLayer1Background.eventMode = 'static';
+    this.misfilledLayer1Background.hitArea = new Rectangle(3500, 500, 4200, 2700);
+    this.misfilledLayer1Background.on('pointerdown', () => {
+      if (this.isInitialSelectionPhase && !this.segment1Completed && this.activeSegment === null) {
+        this.onSegmentClick(1);
+      }
+    });
+
+    this.misfilledLayer2Background.eventMode = 'static';
+    this.misfilledLayer2Background.hitArea = new Rectangle(0, 3150, 4000, 2300);
+    this.misfilledLayer2Background.on('pointerdown', () => {
+      if (this.isInitialSelectionPhase && !this.segment2Completed && this.activeSegment === null) {
+        this.onSegmentClick(2);
+      }
+    });
+  }
+
+  private onSegmentClick(segmentNumber: 1 | 2): void {
+    if (!this.isInitialSelectionPhase || this.activeSegment !== null) return;
+
+    lego.event.emit(SoundEvents.Click);
+
+    this.isInitialSelectionPhase = false;
+    this.activeSegment = segmentNumber;
+    this.hideHint();
+    this.stopHintTimer();
+
+    segmentNumber === 1 ? this.zoomIntoSegment1() : this.zoomIntoSegment2();
+  }
+
+  private startHandMovementBetweenSegments(): void {
+    this.isInitialSelectionPhase = true;
+    this.activeSegment = null;
+    this.canClick = true;
+
+    // Ensure both segments are visible
+    this.misfilledLayer1.alpha = 1;
+    this.misfilledLayer2.alpha = 1;
+
+    // Calculate center positions of both segments (in world coordinates before zoom)
+    const segment1Center = this.getSegmentCenter(1);
+    const segment2Center = this.getSegmentCenter(2);
+
+    const scale = 1.6;
+
+    // Show hand and start moving between segments
+    this.hand.alpha = 1;
+    this.hand.visible = true;
+    this.hand.scale.set(scale);
+    this.hand.position.set(segment1Center.x, segment1Center.y);
+
+    let currentSegment = 1;
+
+    const moveToNextSegment = (): void => {
+      // Stop if user has clicked on a segment
+      if (!this.isInitialSelectionPhase || this.activeSegment !== null) {
+        return;
+      }
+
+      const targetSegment = currentSegment === 1 ? 2 : 1;
+      const targetPos = targetSegment === 1 ? segment1Center : segment2Center;
+
+      anime({
+        targets: this.hand,
+        x: targetPos.x,
+        y: targetPos.y,
+        duration: 1000,
+        easing: 'easeInOutSine',
+        complete: () => {
+          // Stop if user has clicked on a segment
+          if (!this.isInitialSelectionPhase || this.activeSegment !== null) {
+            return;
+          }
+
+          // Point animation
+          anime({
+            targets: this.hand.scale,
+            x: scale,
+            y: scale,
+            duration: 500,
+            easing: 'easeInOutCubic',
+            direction: 'alternate',
+            complete: () => {
+              currentSegment = targetSegment;
+              // Only continue moving if still in selection phase
+              if (this.isInitialSelectionPhase && this.activeSegment === null) {
+                moveToNextSegment();
+              }
+            },
+          });
+        },
+      });
+    };
+
+    // Start with pointing animation on first segment
+    anime({
+      targets: this.hand.scale,
+      x: 2,
+      y: 2,
+      duration: 500,
+      easing: 'easeInOutCubic',
+      complete: () => {
+        if (this.isInitialSelectionPhase && this.activeSegment === null) {
+          moveToNextSegment();
+        }
+      },
+    });
+  }
+
+  private getSegmentCenter(segmentNumber: 1 | 2): Point {
+    const { height } = this.getBounds();
+
+    if (segmentNumber === 1) {
+      // Get center of segment 1 area
+      const segment = LEVEL_CONFIG.data.Segments?.[0];
+      if (segment && segment.Positions.length > 0) {
+        const positions = segment.Positions.map((pos) => {
+          const [x, y] = pos.split(';').map(Number);
+          return { x, y };
+        });
+        const avgX = positions.reduce((sum, p) => sum + p.x, 0) / positions.length;
+        const avgY = positions.reduce((sum, p) => sum + p.y, 0) / positions.length;
+        const { cx, cy } = this.getCellCenter(avgX, avgY, height);
+        // Coordinates are already relative to boardRoot
+        return new Point(cx, cy);
+      }
+      // Fallback: use the zoom position but convert to current scale
+      // SEGEMNT1_X/Y are the positions when zoomed, so we need to reverse that
+      // At zoom scale 1, boardRoot is at (500, 0)
+      // The segment center when zoomed would be at SEGEMNT1_X/Y relative to boardRoot
+      // So at scale 1, it's approximately at (SEGEMNT1_X / ZOOM_SCALE, SEGEMNT1_Y / ZOOM_SCALE)
+      return new Point(SEGEMNT1_X / ZOOM_SCALE, SEGEMNT1_Y / ZOOM_SCALE);
+    } else {
+      // Get center of segment 2 area
+      const segment = LEVEL_CONFIG.data.Segments?.[1];
+      if (segment && segment.Positions.length > 0) {
+        const positions = segment.Positions.map((pos) => {
+          const [x, y] = pos.split(';').map(Number);
+          return { x, y };
+        });
+        const avgX = positions.reduce((sum, p) => sum + p.x, 0) / positions.length;
+        const avgY = positions.reduce((sum, p) => sum + p.y, 0) / positions.length;
+        const { cx, cy } = this.getCellCenter(avgX, avgY, height);
+        // Coordinates are already relative to boardRoot
+        return new Point(cx, cy);
+      }
+      // Fallback: use the zoom position but convert to current scale
+      return new Point(SEGEMNT2_X / ZOOM_SCALE, SEGEMNT2_Y / ZOOM_SCALE);
+    }
+  }
+
+  private endGame(): void {
+    this.zoomOut().then(() => {
+      anime({
+        targets: [this.backgroundLayer, this.gemsLayer],
+        alpha: 1,
+        duration: ZOOM_DURATION,
+        easing: 'easeInOutQuad',
+      });
+      anime({
+        targets: [this.misfilledLayer1, this.misfilledLayer2, this.stack1, this.stack2],
+        alpha: 0,
+        duration: ZOOM_DURATION,
+        easing: 'easeInOutQuad',
+        complete: () => {
+          [
+            this.gemsGroup11,
+            this.gemsGroup12,
+            this.gemsGroup13,
+            this.gemsGroup14,
+            this.gemsGroup15,
+            this.gemsGroup16,
+            this.gemsGroup17,
+            this.gemsGroup21,
+            this.gemsGroup22,
+            this.gemsGroup23,
+            this.gemsGroup24,
+            this.gemsGroup25,
+            this.gemsGroup26,
+            this.gemsGroup27,
+            this.cellsGroup11,
+            this.cellsGroup12,
+            this.cellsGroup13,
+            this.cellsGroup14,
+            this.cellsGroup15,
+            this.cellsGroup16,
+            this.cellsGroup17,
+            this.cellsGroup21,
+            this.cellsGroup22,
+            this.cellsGroup23,
+            this.cellsGroup24,
+            this.cellsGroup25,
+            this.cellsGroup26,
+            this.cellsGroup27,
+          ].forEach((group) => {
+            group.forEach((sprite) => sprite?.destroy());
+          });
+          this.misfilledMap1.clear();
+          this.misfilledMap2.clear();
+          this.stack1Map.clear();
+          this.stack2Map.clear();
+          this.chosenGems = [];
+          this.activeColor = '';
+          this.correctCounter = 0;
+
+          delayRunnable(0.8, () => {
+            lego.event.emit(MainGameEvents.AdToCTA);
+          });
+        },
+      });
+    });
   }
 }
