@@ -71,11 +71,6 @@ const TEXT_ORDER: ('good' | 'great' | 'perfect' | 'goodJob')[] = [
 ];
 let currentTextIndex = 0;
 
-const outlineProperties = {
-  thickness: 5,
-  alpha: 1,
-};
-
 const GEM_DURATION = 150;
 const GEM_EASING = 'easeInCubic';
 const GEM_DELAY = 50;
@@ -211,8 +206,10 @@ export class BoardView extends Container {
 
     this.backgroundLayer.alpha = 0.7;
     this.gemsLayer.alpha = 0.7;
+
     this.startHandMovementBetweenSegments();
-    this.animateSegmentsOutline();
+    this.setOutlineAlpha1(0);
+    this.setOutlineAlpha2(0);
     this.setupSegmentClickHandlers();
   }
 
@@ -1638,25 +1635,6 @@ export class BoardView extends Container {
     return this.outlineFilter2?.alpha ?? 0;
   }
 
-  public animateSegmentsOutline(): void {
-    anime({
-      targets: outlineProperties,
-      alpha: 0,
-      duration: 500,
-      easing: 'easeInOutSine',
-      direction: 'alternate',
-      loop: true,
-      endDelay: 500,
-      update: () => {
-        this.setOutlineAlpha(outlineProperties.alpha);
-      },
-      complete: () => {
-        this.misfilledLayer1Background.filters = [];
-        this.misfilledLayer2Background.filters = [];
-      },
-    });
-  }
-
   private setupSegmentClickHandlers(): void {
     // Make segment backgrounds clickable
     this.misfilledLayer1Background.eventMode = 'static';
@@ -1728,12 +1706,10 @@ export class BoardView extends Container {
         duration: 1000,
         easing: 'easeInOutSine',
         complete: () => {
-          // Stop if user has clicked on a segment
           if (!this.isInitialSelectionPhase || this.activeSegment !== null) {
             return;
           }
 
-          // Point animation
           anime({
             targets: this.hand.scale,
             x: scale,
@@ -1743,9 +1719,15 @@ export class BoardView extends Container {
             direction: 'alternate',
             complete: () => {
               currentSegment = targetSegment;
-              // Only continue moving if still in selection phase
               if (this.isInitialSelectionPhase && this.activeSegment === null) {
                 moveToNextSegment();
+              }
+            },
+            update: (anim) => {
+              if (currentSegment === 2) {
+                this.setOutlineAlpha1(anim.progress / 100);
+              } else if (currentSegment === 1) {
+                this.setOutlineAlpha2(anim.progress / 100);
               }
             },
           });
@@ -1763,6 +1745,13 @@ export class BoardView extends Container {
       complete: () => {
         if (this.isInitialSelectionPhase && this.activeSegment === null) {
           moveToNextSegment();
+        }
+      },
+      update: (anim) => {
+        if (currentSegment === 1) {
+          this.setOutlineAlpha1(1 - anim.progress / 100);
+        } else if (currentSegment === 2) {
+          this.setOutlineAlpha2(1 - anim.progress / 100);
         }
       },
     });
