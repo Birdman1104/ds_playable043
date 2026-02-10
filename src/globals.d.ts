@@ -1,3 +1,5 @@
+declare module 'stats.js';
+
 declare module '*.atlas' {
   const src: string;
   export default src;

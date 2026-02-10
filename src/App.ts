@@ -5,6 +5,7 @@ import { Spritesheet } from '@pixi/spritesheet';
 import { SPINES_MANIFEST } from 'assetsInfo/spines';
 import SoundController from 'components/SoundController';
 import PixiStage from 'MainStage';
+import Stats from 'stats.js';
 import { ATLASES } from './assetsInfo/atlases';
 import { IMAGES } from './assetsInfo/images';
 import { SPRITESHEET } from './assetsInfo/spriteSheets';
@@ -19,7 +20,7 @@ class App extends Application {
   public constructor() {
     super({
       backgroundColor: 0xe2e2e2,
-      backgroundAlpha: 1,
+      backgroundAlpha: 0,
       powerPreference: 'high-performance',
       antialias: true,
       resolution: Math.max(window.devicePixelRatio || 1, 2),
@@ -160,10 +161,12 @@ class App extends Application {
   }
 
   private initStats(): void {
-    //@ts-ignore
-    // const stats = new PixiStatsPlugin(this);
-    // document.body.appendChild(stats.stats.dom);
-    // this.ticker.add(() => stats.stats.update());
+    const stats = Stats();
+    document.body.appendChild(stats.dom);
+    stats.begin();
+    this.ticker.add(() => {
+      stats.update();
+    });
   }
 }
 

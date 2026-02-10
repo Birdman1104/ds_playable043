@@ -7,8 +7,6 @@ import { SoundState } from 'models/SoundModel';
 
 const VOLUMES = {
   theme: 1,
-  bell: 0.3,
-  crystalPickup: 0.3,
 };
 
 export const SoundEvents = Object.freeze({

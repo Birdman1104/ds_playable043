@@ -85,10 +85,12 @@ export class BoardView extends Container {
   private stack2Overlay = new Container();
   private misfilledLayer1 = new Container();
   private misfilledLayer1Background = new Container();
+  private misfilledLayer1BackgroundCopy = new Container();
   private misfilledLayer1StaticGems = new Container();
   private misfilledLayer1Gems = new Container();
   private misfilledLayer2 = new Container();
   private misfilledLayer2Background = new Container();
+  private misfilledLayer2BackgroundCopy = new Container();
   private misfilledLayer2StaticGems = new Container();
   private misfilledLayer2Gems = new Container();
   private outlineFilter1: OutlineFilter | null = null;
@@ -124,6 +126,8 @@ export class BoardView extends Container {
   private cellsGroup17: Sprite[] = [];
 
   private correctCounter = 0;
+  private segment1CorrectCounter = 0;
+  private segment2CorrectCounter = 0;
   private misfills1 = 7;
   private misfills2 = 7;
   private firstFromFirst = true;
@@ -179,9 +183,11 @@ export class BoardView extends Container {
     this.boardRoot.addChild(this.stack2);
     this.boardRoot.addChild(this.stack2Overlay);
     this.misfilledLayer1.addChild(this.misfilledLayer1Background);
+    this.misfilledLayer1.addChild(this.misfilledLayer1BackgroundCopy);
     this.misfilledLayer1.addChild(this.misfilledLayer1StaticGems);
     this.misfilledLayer1.addChild(this.misfilledLayer1Gems);
     this.misfilledLayer2.addChild(this.misfilledLayer2Background);
+    this.misfilledLayer2.addChild(this.misfilledLayer2BackgroundCopy);
     this.misfilledLayer2.addChild(this.misfilledLayer2StaticGems);
     this.misfilledLayer2.addChild(this.misfilledLayer2Gems);
     this.boardRoot.addChild(this.misfilledLayer1);
@@ -539,46 +545,33 @@ export class BoardView extends Container {
       const { cx, cy } = this.getCellCenter(x, y, height);
 
       if (!misfilled) {
-        const empty = makeSprite({
-          frame: `empty_${slot?.color ?? 'black'}.png`,
-          atlas: 'gems',
-          x: cx,
-          y: cy,
-        });
+        const empty = this.getEmptySprite(slot?.color ?? 'black', cx, cy);
+        const copy = this.getEmptySprite(slot?.color ?? 'black', cx, cy);
+        const gem = this.getGemSprite(slot?.color ?? 'black', cx, cy);
 
         this.misfilledLayer1Background.addChild(empty);
-        const gem = makeSprite({
-          frame: `gem_${slot?.color ?? 'black'}.png`,
-          atlas: 'gems',
-          x: cx,
-          y: cy,
-        });
+        this.misfilledLayer1BackgroundCopy.addChild(copy);
         this.misfilledLayer1StaticGems.addChild(gem);
       } else {
-        const empty = makeSprite({
-          frame: `empty_${misfilled.background}.png`,
-          atlas: 'gems',
-          x: cx,
-          y: cy,
-        });
-        empty.eventMode = 'static';
-        empty.on(
-          'pointerdown',
+        const empty = this.getEmptySprite(
+          misfilled.background,
+          cx,
+          cy,
           () => this.canClick && this.onMisfilled1EmptyClick(empty, misfilled.correct),
         );
-        this.misfilledLayer1Background.addChild(empty);
 
-        const gem = makeSprite({
-          frame: `gem_${misfilled.wrong}_wrong.png`,
-          atlas: 'gems',
-          x: cx,
-          y: cy,
-        });
-        gem.eventMode = 'static';
-        gem.on(
-          'pointerdown',
+        const copy = this.getEmptySprite(misfilled.background, cx, cy);
+
+        this.misfilledLayer1Background.addChild(empty);
+        this.misfilledLayer1BackgroundCopy.addChild(copy);
+
+        const gem = this.getGemSprite(
+          misfilled.wrong,
+          cx,
+          cy,
           () => this.canClick && this.onMisfilled1GemClick(gem, misfilled.wrong),
         );
+
         this.misfilledLayer1Gems.addChild(gem);
 
         this.misfilledMap1.set(key, {
@@ -691,45 +684,29 @@ export class BoardView extends Container {
       const { cx, cy } = this.getCellCenter(x, y, height);
 
       if (!misfilled) {
-        const empty = makeSprite({
-          frame: `empty_${slot?.color ?? 'black'}.png`,
-          atlas: 'gems',
-          x: cx,
-          y: cy,
-        });
+        const empty = this.getEmptySprite(slot?.color ?? 'black', cx, cy);
+        const copy = this.getEmptySprite(slot?.color ?? 'black', cx, cy);
+        const gem = this.getGemSprite(slot?.color ?? 'black', cx, cy);
         this.misfilledLayer2Background.addChild(empty);
-        const gem = makeSprite({
-          frame: `gem_${slot?.color ?? 'black'}.png`,
-          atlas: 'gems',
-          x: cx,
-          y: cy,
-        });
+        this.misfilledLayer2BackgroundCopy.addChild(copy);
         this.misfilledLayer2StaticGems.addChild(gem);
       } else {
-        const empty = makeSprite({
-          frame: `empty_${misfilled.background}.png`,
-          atlas: 'gems',
-          x: cx,
-          y: cy,
-        });
-        empty.eventMode = 'static';
-        empty.on(
-          'pointerdown',
+        const empty = this.getEmptySprite(
+          misfilled.background,
+          cx,
+          cy,
           () => this.canClick && this.onMisfilled2EmptyClick(empty, misfilled.correct),
         );
-        this.misfilledLayer2Background.addChild(empty);
-
-        const gem = makeSprite({
-          frame: `gem_${misfilled.wrong}_wrong.png`,
-          atlas: 'gems',
-          x: cx,
-          y: cy,
-        });
-        gem.eventMode = 'static';
-        gem.on(
-          'pointerdown',
+        const copy = this.getEmptySprite(misfilled.background, cx, cy);
+        const gem = this.getGemSprite(
+          misfilled.wrong,
+          cx,
+          cy,
           () => this.canClick && this.onMisfilled2GemClick(gem, misfilled.wrong),
         );
+        this.misfilledLayer2Background.addChild(empty);
+        this.misfilledLayer2BackgroundCopy.addChild(copy);
+
         this.misfilledLayer2Gems.addChild(gem);
 
         this.misfilledMap2.set(key, {
@@ -915,6 +892,18 @@ export class BoardView extends Container {
 
     this.restartHint();
 
+    if (this.firstFromSecond) {
+      this.firstFromSecond = false;
+      anime({
+        targets: this.stack2Overlay,
+        alpha: 0.7,
+        duration: 400,
+        loop: 6,
+        direction: 'alternate',
+        easing: 'easeInOutSine',
+      });
+    }
+
     if (this.activeColor) {
       this.putGemBack(this.chosenGems);
       this.chosenGems = [];
@@ -977,11 +966,7 @@ export class BoardView extends Container {
           duration: GEM_DURATION,
           delay: i * GEM_DELAY,
           easing: GEM_EASING,
-          begin: () => {
-            // lego.event.emit(SoundEvents.CrystalPickup);
-          },
           complete: () => {
-            // lego.event.emit(SoundEvents.Bell);
             this.misfilledMap1.forEach((m, k) => {
               if (m.gem === gem) {
                 this.misfilledMap1.set(k, {
@@ -1035,17 +1020,14 @@ export class BoardView extends Container {
               this.animationInProgress = false;
 
               if (correctColor === activeColorCopy) {
-                this.updateCorrectCounter();
-                const realCorrectCounter = this.segment2Completed
-                  ? this.correctCounter - this.misfills2
-                  : this.correctCounter;
-                if (realCorrectCounter === this.misfills1 && !this.segment1Completed) {
+                this.segment1CorrectCounter++;
+                this.updateCorrectCounter(1);
+                if (this.segment1CorrectCounter === this.misfills1 && !this.segment1Completed) {
                   this.segment1Completed = true;
                   this.stopHintTimer();
                   this.hideHint();
 
                   if (!this.segment2Completed) {
-                    // Zoom out and zoom into the other segment
                     this.zoomOut().then(() => {
                       anime({
                         targets: [this.misfilledLayer1, this.stack1],
@@ -1172,12 +1154,9 @@ export class BoardView extends Container {
               this.animationInProgress = false;
 
               if (correctColor === activeColorCopy) {
-                this.updateCorrectCounter();
-                const realCorrectCounter = this.segment1Completed
-                  ? this.correctCounter - this.misfills1
-                  : this.correctCounter;
-
-                if (realCorrectCounter === this.misfills2 && !this.segment2Completed) {
+                this.segment2CorrectCounter++;
+                this.updateCorrectCounter(2);
+                if (this.segment2CorrectCounter === this.misfills2 && !this.segment2Completed) {
                   this.segment2Completed = true;
                   this.stopHintTimer();
                   this.hideHint();
@@ -1223,6 +1202,8 @@ export class BoardView extends Container {
       y: this.boardRoot.y,
     };
     lego.event.emit(SoundEvents.Zoom);
+
+    this.misfilledLayer1Background.filters = [];
 
     anime({
       targets: animTarget,
@@ -1272,6 +1253,8 @@ export class BoardView extends Container {
       y: this.boardRoot.y,
     };
     lego.event.emit(SoundEvents.Zoom);
+    this.misfilledLayer2Background.filters = [];
+
     anime({
       targets: animTarget,
       scaleX: ZOOM_SCALE,
@@ -1346,12 +1329,6 @@ export class BoardView extends Container {
     const stackFilled = isSegment1 ? this.stack1Filled : this.stack2Filled;
     const stackSlots = isSegment1 ? this.stack1Slots : this.stack2Slots;
     const stackContainer = isSegment1 ? this.stack1 : this.stack2;
-
-    // Calculate correct counter for current segment
-    const segmentCorrectCounter = isSegment1
-      ? this.correctCounter
-      : this.correctCounter - this.misfills1;
-    const segmentMisfills = isSegment1 ? this.misfills1 : this.misfills2;
 
     const isGemInteractive = (gem: Sprite | null): boolean => {
       return gem !== null && gem.eventMode !== 'none';
@@ -1557,13 +1534,25 @@ export class BoardView extends Container {
     this.startHintTimer();
   }
 
-  private updateCorrectCounter(): void {
+  private updateCorrectCounter(segmentNumber: 1 | 2): void {
     this.correctCounter++;
-    if (this.correctCounter >= this.misfills1 - 3 && this.correctCounter <= this.misfills1) {
-      this.jumpText();
-    }
-    if (this.correctCounter >= this.misfills2 - 3 && this.correctCounter <= this.misfills2) {
-      this.jumpText();
+
+    if (segmentNumber === 1) {
+      // Show text for last 3 placements in segment 1 (when counter is 5, 6, or 7)
+      if (
+        this.segment1CorrectCounter >= this.misfills1 - 3 &&
+        this.segment1CorrectCounter <= this.misfills1
+      ) {
+        this.jumpText();
+      }
+    } else if (segmentNumber === 2) {
+      // Show text for last 3 placements in segment 2 (when counter is 5, 6, or 7)
+      if (
+        this.segment2CorrectCounter >= this.misfills2 - 3 &&
+        this.segment2CorrectCounter <= this.misfills2
+      ) {
+        this.jumpText();
+      }
     }
   }
 
@@ -1636,7 +1625,6 @@ export class BoardView extends Container {
   }
 
   private setupSegmentClickHandlers(): void {
-    // Make segment backgrounds clickable
     this.misfilledLayer1Background.eventMode = 'static';
     this.misfilledLayer1Background.hitArea = new Rectangle(3500, 500, 4200, 2700);
     this.misfilledLayer1Background.on('pointerdown', () => {
@@ -1672,17 +1660,14 @@ export class BoardView extends Container {
     this.activeSegment = null;
     this.canClick = true;
 
-    // Ensure both segments are visible
     this.misfilledLayer1.alpha = 1;
     this.misfilledLayer2.alpha = 1;
 
-    // Calculate center positions of both segments (in world coordinates before zoom)
     const segment1Center = this.getSegmentCenter(1);
     const segment2Center = this.getSegmentCenter(2);
 
     const scale = 1.6;
 
-    // Show hand and start moving between segments
     this.hand.alpha = 1;
     this.hand.visible = true;
     this.hand.scale.set(scale);
@@ -1691,7 +1676,6 @@ export class BoardView extends Container {
     let currentSegment = 1;
 
     const moveToNextSegment = (): void => {
-      // Stop if user has clicked on a segment
       if (!this.isInitialSelectionPhase || this.activeSegment !== null) {
         return;
       }
@@ -1735,7 +1719,6 @@ export class BoardView extends Container {
       });
     };
 
-    // Start with pointing animation on first segment
     anime({
       targets: this.hand.scale,
       x: 2,
@@ -1761,7 +1744,6 @@ export class BoardView extends Container {
     const { height } = this.getBounds();
 
     if (segmentNumber === 1) {
-      // Get center of segment 1 area
       const segment = LEVEL_CONFIG.data.Segments?.[0];
       if (segment && segment.Positions.length > 0) {
         const positions = segment.Positions.map((pos) => {
@@ -1771,17 +1753,10 @@ export class BoardView extends Container {
         const avgX = positions.reduce((sum, p) => sum + p.x, 0) / positions.length;
         const avgY = positions.reduce((sum, p) => sum + p.y, 0) / positions.length;
         const { cx, cy } = this.getCellCenter(avgX, avgY, height);
-        // Coordinates are already relative to boardRoot
         return new Point(cx, cy);
       }
-      // Fallback: use the zoom position but convert to current scale
-      // SEGEMNT1_X/Y are the positions when zoomed, so we need to reverse that
-      // At zoom scale 1, boardRoot is at (500, 0)
-      // The segment center when zoomed would be at SEGEMNT1_X/Y relative to boardRoot
-      // So at scale 1, it's approximately at (SEGEMNT1_X / ZOOM_SCALE, SEGEMNT1_Y / ZOOM_SCALE)
       return new Point(SEGEMNT1_X / ZOOM_SCALE, SEGEMNT1_Y / ZOOM_SCALE);
     } else {
-      // Get center of segment 2 area
       const segment = LEVEL_CONFIG.data.Segments?.[1];
       if (segment && segment.Positions.length > 0) {
         const positions = segment.Positions.map((pos) => {
@@ -1791,10 +1766,8 @@ export class BoardView extends Container {
         const avgX = positions.reduce((sum, p) => sum + p.x, 0) / positions.length;
         const avgY = positions.reduce((sum, p) => sum + p.y, 0) / positions.length;
         const { cx, cy } = this.getCellCenter(avgX, avgY, height);
-        // Coordinates are already relative to boardRoot
         return new Point(cx, cy);
       }
-      // Fallback: use the zoom position but convert to current scale
       return new Point(SEGEMNT2_X / ZOOM_SCALE, SEGEMNT2_Y / ZOOM_SCALE);
     }
   }
@@ -1859,5 +1832,23 @@ export class BoardView extends Container {
         },
       });
     });
+  }
+
+  private getEmptySprite(color: string, x: number, y: number, cb?: () => void | false): Sprite {
+    const sprite = makeSprite({ frame: `empty_${color}.png`, atlas: 'gems', x, y });
+    if (cb) {
+      sprite.eventMode = 'static';
+      sprite.on('pointerdown', cb);
+    }
+    return sprite;
+  }
+
+  private getGemSprite(color: string, x: number, y: number, cb?: () => void | false): Sprite {
+    const sprite = makeSprite({ frame: `gem_${color}.png`, atlas: 'gems', x, y });
+    if (cb) {
+      sprite.eventMode = 'static';
+      sprite.on('pointerdown', cb);
+    }
+    return sprite;
   }
 }
